@@ -22,12 +22,9 @@ contract ESM is DSAuth, DSNote {
 
     mapping(address => uint256) public gems;
 
-    uint256 public constant BASIC = 0;
-    uint256 public constant FREED = 1;
-    uint256 public constant BURNT = 2;
-    uint256 public constant FIRED = 3;
-    uint256 public          state = BASIC;
-    bool    public          spent;
+    enum hops { BASIC, FREED, BURNT, FIRED }
+    hops public hop;
+    bool public spent;
 
     constructor(address gem_, address end_, address sun_, uint256 cap_, address owner_, address authority_) public {
         gem = GemLike(gem_);
@@ -58,32 +55,32 @@ contract ESM is DSAuth, DSNote {
         if (job == "cap") cap = val;
     }
 
-    // -- state changes --
+    // -- hop changes --
     function fire() external note {
         require(!spent && full(), "esm/not-fireable");
 
         end.cage();
 
         spent = true;
-        state = FIRED;
+        hop = hops.FIRED;
     }
 
     function free() external auth note {
-        require(state != BURNT, "esm/already-burnt");
+        require(hop != hops.BURNT, "esm/already-burnt");
 
-        state = FREED;
+        hop = hops.FREED;
     }
 
     function lock() external auth note {
-        require(state == FREED, "esm/not-freed");
+        require(hop == hops.FREED, "esm/not-freed");
 
-        state = BASIC;
+        hop = hops.BASIC;
     }
 
     function burn() external auth note {
-        sum   = 0;
+        sum = 0;
         spent = true;
-        state = BURNT;
+        hop = hops.BURNT;
 
         bool ok = gem.transfer(address(sun), gem.balanceOf(address(this)));
 
@@ -93,7 +90,7 @@ contract ESM is DSAuth, DSNote {
 
     // -- user actions --
     function join(uint256 wad) external note {
-        require(state == BASIC && !spent, "esm/not-joinable");
+        require(hop == hops.BASIC && !spent, "esm/not-joinable");
 
         gems[msg.sender] = add(gems[msg.sender], wad);
         sum = add(sum, wad);
@@ -104,7 +101,7 @@ contract ESM is DSAuth, DSNote {
     }
 
     function exit(address usr, uint256 wad) external note {
-        require(state == FREED, "esm/not-freed");
+        require(hop == hops.FREED, "esm/not-freed");
 
         gems[msg.sender] = sub(gems[msg.sender], wad);
         sum = sub(sum, wad);
@@ -117,5 +114,9 @@ contract ESM is DSAuth, DSNote {
     // -- helpers --
     function full() public view returns (bool) {
         return sum >= cap;
+    }
+
+    function at() public view returns (uint256) {
+        return uint256(hop);
     }
 }

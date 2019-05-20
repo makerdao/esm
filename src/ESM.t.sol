@@ -66,6 +66,8 @@ contract ESMTest is DSTest {
     TestUsr usr;
     TestUsr gov;
 
+    enum hops { BASIC, FREED, BURNT, FIRED }
+
     function setUp() public {
         gem = new DSToken("GOLD");
         end = new EndTest();
@@ -100,23 +102,23 @@ contract ESMTest is DSTest {
         assertEq(esm.cap(), 42);
     }
 
-    // -- state transitions --
-    function test_initial_state() public {
-        assertStateEq(esm.BASIC());
+    // -- hop transitions --
+    function test_initial_hop() public {
+        assertHopEq(hops.BASIC);
     }
 
     function test_basic_to_freed() public {
-        assertStateEq(esm.BASIC());
+        assertHopEq(hops.BASIC);
         gov.callFree();
     }
 
     function test_basic_to_burnt() public {
-        assertStateEq(esm.BASIC());
+        assertHopEq(hops.BASIC);
         gov.callBurn();
     }
 
     function test_basic_to_fired() public {
-        assertStateEq(esm.BASIC());
+        assertHopEq(hops.BASIC);
         gov.callFile("cap", 0);
         gov.callFire();
     }
@@ -184,25 +186,25 @@ contract ESMTest is DSTest {
         usr.callJoin(10);
     }
 
-    // -- state enum assignments --
+    // -- hop enum assignments --
     function test_freed() public {
-        assertStateNEq(esm.FREED());
+        assertHopNEq(hops.FREED);
         gov.callFile("cap", 0);
         gov.callFire();
 
         gov.callFree();
 
-        assertStateEq(esm.FREED());
+        assertHopEq(hops.FREED);
     }
 
     function test_burnt() public {
-        assertStateNEq(esm.BURNT());
+        assertHopNEq(hops.BURNT);
         gov.callFile("cap", 0);
         gov.callFire();
 
         gov.callBurn();
 
-        assertStateEq(esm.BURNT());
+        assertHopEq(hops.BURNT);
     }
 
     function test_fired() public {
@@ -221,7 +223,7 @@ contract ESMTest is DSTest {
     }
 
     function testFail_lock_when_not_freed() public {
-        assertStateNEq(esm.FREED());
+        assertHopNEq(hops.FREED);
 
         gov.callLock();
     }
@@ -325,11 +327,11 @@ contract ESMTest is DSTest {
     }
 
     // -- internal test helpers --
-    function assertStateEq(uint256 state) internal {
-        esm.state() == state;
+    function assertHopEq(hops hop) internal {
+        esm.at() == uint256(hop);
     }
 
-    function assertStateNEq(uint256 state) internal {
-        esm.state() != state;
+    function assertHopNEq(hops hop) internal {
+        esm.at() != uint256(hop);
     }
 }
