@@ -206,12 +206,12 @@ contract ESMTest is DSTest {
     }
 
     function test_fired() public {
-        assertTrue(!esm.spent());
+        assertTrue(!esm.fin());
         gov.callFile("cap", 0);
 
         gov.callFire();
 
-        assertTrue(esm.spent());
+        assertTrue(esm.fin());
     }
 
     function testFail_fire_cap_not_met() public {

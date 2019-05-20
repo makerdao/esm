@@ -27,7 +27,7 @@ contract ESM is DSAuth, DSNote {
     uint256 public constant BURNT = 2;
     uint256 public constant FIRED = 3;
     uint256 public          state = BASIC;
-    bool    public          spent;
+    bool    public          fin;
 
     constructor(address gem_, address end_, address sun_, uint256 cap_, address owner_, address authority_) public {
         gem = GemLike(gem_);
@@ -60,11 +60,11 @@ contract ESM is DSAuth, DSNote {
 
     // -- state changes --
     function fire() external note {
-        require(!spent && full(), "esm/not-fireable");
+        require(full() && !fin, "esm/not-fireable");
 
         end.cage();
 
-        spent = true;
+        fin = true;
         state = FIRED;
     }
 
@@ -81,8 +81,8 @@ contract ESM is DSAuth, DSNote {
     }
 
     function burn() external auth note {
-        sum   = 0;
-        spent = true;
+        sum = 0;
+        fin = true;
         state = BURNT;
 
         bool ok = gem.transfer(address(sun), gem.balanceOf(address(this)));
@@ -93,7 +93,7 @@ contract ESM is DSAuth, DSNote {
 
     // -- user actions --
     function join(uint256 wad) external note {
-        require(state == BASIC && !spent, "esm/not-joinable");
+        require(state == BASIC && !fin, "esm/not-joinable");
 
         gems[msg.sender] = add(gems[msg.sender], wad);
         sum = add(sum, wad);
