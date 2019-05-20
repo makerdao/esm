@@ -1,6 +1,6 @@
 pragma solidity ^0.5.6;
 
-import "ds-auth/auth.sol";
+import { DSAuthority, DSAuth } from "ds-auth/auth.sol";
 import "ds-note/note.sol";
 
 contract GemLike {
@@ -88,7 +88,6 @@ contract ESM is DSAuth, DSNote {
         bool ok = gem.transfer(address(sun), gem.balanceOf(address(this)));
 
         require(ok, "esm/failed-transfer");
-
     }
 
     // -- user actions --
