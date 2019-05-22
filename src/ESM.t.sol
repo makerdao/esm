@@ -302,6 +302,34 @@ contract ESMTest is DSTest {
         usr.callExit(address(usr), 10);
     }
 
+    // -- auth --
+    function testFail_unauthorized_rely() public {
+        esm.rely(address(0x0));
+    }
+    function testFail_unauthorized_deny() public {
+        esm.deny(address(0x0));
+    }
+
+    function testFail_unauthorized_file_uint256() public {
+        esm.file("cap", 10);
+    }
+
+    function testFail_unauthorized_file_address() public {
+        esm.file("cap", address(0x0));
+    }
+
+    function testFail_unauthorized_free() public {
+        esm.free();
+    }
+
+    function testFail_unauthorized_lock() public {
+        esm.lock();
+    }
+
+    function testFail_unauthorized_burn() public {
+        esm.burn();
+    }
+
     // -- helpers --
     function test_full() public {
         gov.callFile("cap", 10);
