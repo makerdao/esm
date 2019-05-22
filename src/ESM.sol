@@ -13,7 +13,7 @@ contract EndLike {
     function cage() public;
 }
 
-contract ESM is DSAuth, DSNote {
+contract ESM is DSNote {
     uint256 public cap;
     GemLike public gem;
     EndLike public end;
@@ -29,13 +29,18 @@ contract ESM is DSAuth, DSNote {
     uint256 public          state = BASIC;
     bool    public          spent;
 
-    constructor(address gem_, address end_, address sun_, uint256 cap_, address owner_, address authority_) public {
+    mapping(address => uint256) public wards;
+    function rely(address usr) public auth note { wards[usr] = 1; }
+    function deny(address usr) public auth note { wards[usr] = 0; }
+    modifier auth() { require(wards[msg.sender] == 1, "esm/unauthorized"); _; }
+
+    constructor(address ward, address gem_, address end_, address sun_, uint256 cap_) public {
+        wards[ward] = 1;
+
         gem = GemLike(gem_);
         end = EndLike(end_);
         sun = sun_;
         cap = cap_;
-        owner = owner_;
-        authority = DSAuthority(authority_);
     }
 
     // -- math --

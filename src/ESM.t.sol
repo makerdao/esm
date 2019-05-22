@@ -72,7 +72,7 @@ contract ESMTest is DSTest {
         sun = address(0x1);
         usr = new TestUsr();
         gov = new TestUsr();
-        esm = new ESM(address(gem), address(end), sun, 10, address(gov), msg.sender);
+        esm = new ESM(address(gov), address(gem), address(end), sun, 10);
 
         gov.setESM(esm);
         usr.setESM(esm);
@@ -80,12 +80,11 @@ contract ESMTest is DSTest {
     }
 
     function test_constructor() public {
+        assertEq(esm.wards(address(gov)), 1);
         assertEq(address(esm.gem()), address(gem));
         assertEq(address(esm.end()), address(end));
         assertEq(esm.sun(), address(0x1));
         assertEq(esm.cap(), 10);
-        assertEq(address(esm.owner()), address(gov));
-        assertEq(address(esm.authority()), address(msg.sender));
     }
 
     // -- admin --
