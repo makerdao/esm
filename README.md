@@ -37,3 +37,12 @@ Emergency Shutdown Module
 * `fired`
   * `freed`
   * `burnt`
+
+## Authorization
+
+The ESM is meant to sit behind a DSPause, who's authorized to call its `auth`ed
+methods (either by being passed as `ward` in the constructor, or via a
+subsequent call to `rely`).
+
+The DSPause would then have the Chief as its `authority`, allowing the `hat` to
+plot plans on it.
