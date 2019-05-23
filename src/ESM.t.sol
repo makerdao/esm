@@ -101,26 +101,26 @@ contract ESMTest is DSTest {
 
     // -- state transitions --
     function test_initial_state() public {
-        assertStateEq(esm.BASIC());
+        assertStateEq(esm.START());
     }
 
-    function test_basic_to_freed() public {
-        assertStateEq(esm.BASIC());
+    function test_start_to_freed() public {
+        assertStateEq(esm.START());
         gov.callFree();
     }
 
-    function test_basic_to_burnt() public {
-        assertStateEq(esm.BASIC());
+    function test_start_to_burnt() public {
+        assertStateEq(esm.START());
         gov.callBurn();
     }
 
-    function test_basic_to_fired() public {
-        assertStateEq(esm.BASIC());
+    function test_start_to_fired() public {
+        assertStateEq(esm.START());
         gov.callFile("cap", 0);
         gov.callFire();
     }
 
-    function test_freed_to_basic() public {
+    function testFail_freed_to_start() public {
         gov.callFree();
         gov.callLock();
     }

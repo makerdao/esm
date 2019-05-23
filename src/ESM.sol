@@ -21,11 +21,11 @@ contract ESM is DSNote {
 
     mapping(address => uint256) public gems;
 
-    uint256 public constant BASIC = 0;
+    uint256 public constant START = 0;
     uint256 public constant FREED = 1;
     uint256 public constant BURNT = 2;
     uint256 public constant FIRED = 3;
-    uint256 public          state = BASIC;
+    uint256 public          state = START;
     bool    public          spent;
 
     mapping(address => uint256) public wards;
@@ -81,7 +81,7 @@ contract ESM is DSNote {
     function lock() external auth note {
         require(state == FREED, "esm/not-freed");
 
-        state = BASIC;
+        state = START;
     }
 
     function burn() external auth note {
@@ -96,7 +96,7 @@ contract ESM is DSNote {
 
     // -- user actions --
     function join(uint256 wad) external note {
-        require(state == BASIC && !spent, "esm/not-joinable");
+        require(state == START && !spent, "esm/not-joinable");
 
         gems[msg.sender] = add(gems[msg.sender], wad);
         sum = add(sum, wad);

@@ -9,7 +9,7 @@ Emergency Shutdown Module
 * `fire` can only be called once
 * state transition functions are `auth`ed
 * `spent` means either `FIRED` or `BURNT`
-* `join` can be called only in the `BASIC` state and iff `!spent`
+* `join` can be called only in the `START` state and iff `!spent`
   * notably, `join` cannot be called in the `FREED` state, as that would
     contradict the will of governance, i.e. to clear up the ESM
 * `join` can be called even after the `cap` has been reached
@@ -23,12 +23,12 @@ Emergency Shutdown Module
 
 ## Allowed state transitions
 
-* `basic`
+* `start`
   * `freed`
   * `burnt`
   * `fired`
 * `freed`
-  * `basic`
+  * `start`
   * `freed`
   * `burnt`
   * `fired`
