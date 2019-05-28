@@ -96,7 +96,7 @@ contract ESMTest is DSTest {
     }
 
     // -- state transitions --
-    function test_initial_state() public {
+    function test_initial_state() public view {
         assertStateEq(esm.START());
     }
 
@@ -332,7 +332,7 @@ contract ESMTest is DSTest {
     }
 
     // -- internal test helpers --
-    function assertStateEq(uint256 state) internal {
+    function assertStateEq(uint256 state) internal view {
         esm.state() == state;
     }
 }
