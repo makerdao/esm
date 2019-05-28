@@ -40,10 +40,6 @@ contract TestUsr {
         esm.free();
     }
 
-    function callLock() external {
-        esm.lock();
-    }
-
     function callBurn() external {
         esm.burn();
     }
@@ -107,51 +103,22 @@ contract ESMTest is DSTest {
     function test_start_to_freed() public {
         assertStateEq(esm.START());
         gov.callFree();
+        assertStateEq(esm.FREED());
     }
 
     function test_start_to_burnt() public {
         assertStateEq(esm.START());
         gov.callBurn();
+        assertStateEq(esm.BURNT());
+
     }
 
     function test_start_to_fired() public {
         assertStateEq(esm.START());
         gov.callFile("cap", 0);
         gov.callFire();
+        assertStateEq(esm.FIRED());
     }
-
-    function testFail_freed_to_start() public {
-        gov.callFree();
-        gov.callLock();
-    }
-
-    function test_freed_to_burnt() public {
-        gov.callFree();
-        gov.callBurn();
-    }
-
-    function test_freed_to_fired() public {
-        gov.callFile("cap", 0);
-        gov.callFree();
-        gov.callFire();
-    }
-
-    function test_freed_to_freed() public {
-        gov.callFile("cap", 0);
-        gov.callFree();
-        gov.callFree();
-    }
-
-    function test_burnt_to_burnt() public {
-        gov.callBurn();
-        gov.callBurn();
-    }
-
-    function testFail_burnt_to_freed() public {
-        gov.callBurn();
-        gov.callFree();
-    }
-
 
     function test_fired_to_freed() public {
         gov.callFile("cap", 0);
@@ -167,6 +134,39 @@ contract ESMTest is DSTest {
         gov.callBurn();
     }
 
+    function testFail_freed_to_burnt() public {
+        gov.callFree();
+        gov.callBurn();
+    }
+
+    function testFail_freed_to_fired() public {
+        gov.callFile("cap", 0);
+        gov.callFree();
+        gov.callFire();
+    }
+
+    function testFail_freed_to_freed() public {
+        gov.callFile("cap", 0);
+        gov.callFree();
+        gov.callFree();
+        assertStateEq(esm.FREED());
+    }
+
+    function testFail_burnt_to_burnt() public {
+        gov.callBurn();
+        gov.callBurn();
+    }
+
+    function testFail_burnt_to_freed() public {
+        gov.callBurn();
+        gov.callFree();
+    }
+
+    function testFail_burnt_to_fired() public {
+        gov.callBurn();
+        gov.callFire();
+    }
+
     function testFail_fired_to_fired() public {
         gov.callFile("cap", 0);
         gov.callFire();
@@ -177,52 +177,26 @@ contract ESMTest is DSTest {
     function testFail_join_after_fired() public {
         gov.callFile("cap", 0);
         gov.callFire();
-        gov.callFree();
-        gov.callLock();
         gem.mint(address(usr), 10);
         usr.callJoin(10);
     }
 
-    // -- state enum assignments --
-    function test_freed() public {
-        assertStateNEq(esm.FREED());
-        gov.callFile("cap", 0);
-        gov.callFire();
-
-        gov.callFree();
-
-        assertStateEq(esm.FREED());
-    }
-
-    function test_burnt() public {
-        assertStateNEq(esm.BURNT());
-        gov.callFile("cap", 0);
-        gov.callFire();
-
+    function testFail_join_after_burnt() public {
         gov.callBurn();
-
-        assertStateEq(esm.BURNT());
+        gem.mint(address(usr), 10);
+        usr.callJoin(10);
     }
 
-    function test_fired() public {
-        assertTrue(!esm.spent());
-        gov.callFile("cap", 0);
+    function testFail_exit_before_freed() public {
+        gem.mint(address(usr), 10);
+        usr.callJoin(10);
 
-        gov.callFire();
-
-        assertTrue(esm.spent());
+        usr.callExit(address(usr), 10);
     }
-
     function testFail_fire_cap_not_met() public {
         assertTrue(!esm.full());
 
         gov.callFire();
-    }
-
-    function testFail_lock_when_not_freed() public {
-        assertStateNEq(esm.FREED());
-
-        gov.callLock();
     }
 
     // -- side effects --
@@ -248,6 +222,7 @@ contract ESMTest is DSTest {
     function test_join() public {
         gem.mint(address(usr), 10);
 
+        assertStateEq(esm.START());
         usr.callJoin(10);
 
         assertEq(esm.sum(), 10);
@@ -322,10 +297,6 @@ contract ESMTest is DSTest {
         esm.free();
     }
 
-    function testFail_unauthorized_lock() public {
-        esm.lock();
-    }
-
     function testFail_unauthorized_burn() public {
         esm.burn();
     }
@@ -334,6 +305,7 @@ contract ESMTest is DSTest {
     function test_full() public {
         gov.callFile("cap", 10);
 
+        assertTrue(!esm.full());
         gem.mint(address(usr), 10);
 
         usr.callJoin(5);
@@ -354,9 +326,5 @@ contract ESMTest is DSTest {
     // -- internal test helpers --
     function assertStateEq(uint256 state) internal {
         esm.state() == state;
-    }
-
-    function assertStateNEq(uint256 state) internal {
-        esm.state() != state;
     }
 }

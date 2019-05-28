@@ -26,7 +26,6 @@ contract ESM is DSNote {
     uint256 public constant BURNT = 2;
     uint256 public constant FIRED = 3;
     uint256 public          state = START;
-    bool    public          spent;
 
     mapping(address => uint256) public wards;
     function rely(address usr) public auth note { wards[usr] = 1; }
@@ -64,29 +63,23 @@ contract ESM is DSNote {
 
     // -- state changes --
     function fire() external note {
-        require(!spent && full(), "esm/not-fireable");
+        require(state == START && full(), "esm/not-fireable");
 
         end.cage();
 
-        spent = true;
         state = FIRED;
     }
 
     function free() external auth note {
-        require(state != BURNT, "esm/already-burnt");
+        require(state == START || state == FIRED, "esm/not-freeable");
 
         state = FREED;
     }
 
-    function lock() external auth note {
-        require(state == FREED, "esm/not-freed");
-
-        state = START;
-    }
-
     function burn() external auth note {
+        require(state == START || state == FIRED, "esm/not-burnable");
+
         sum   = 0;
-        spent = true;
         state = BURNT;
 
         bool ok = gem.transfer(address(sun), gem.balanceOf(address(this)));
@@ -96,7 +89,7 @@ contract ESM is DSNote {
 
     // -- user actions --
     function join(uint256 wad) external note {
-        require(state == START && !spent, "esm/not-joinable");
+        require(state == START, "esm/not-joinable");
 
         gems[msg.sender] = add(gems[msg.sender], wad);
         sum = add(sum, wad);
