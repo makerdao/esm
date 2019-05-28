@@ -14,7 +14,6 @@ Emergency Shutdown Module
 * `exit` can be called only in the `FREED` state
 * the `cap` only accounts for `gem`s transferred via `join`, but `burn` burns
   the whole balance of the ESM
-  * this makes the embargo on `join` meaningful
 
 ## Allowed state transitions
 

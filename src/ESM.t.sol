@@ -218,6 +218,14 @@ contract ESMTest is DSTest {
         assertEq(gem.balanceOf(address(sun)), 5);
     }
 
+    function test_burn_whole_balance() public {
+        gem.mint(address(esm), 10);
+
+        gov.callBurn();
+
+        assertEq(gem.balanceOf(address(esm)), 0);
+    }
+
     // -- user actions --
     function test_join() public {
         gem.mint(address(usr), 10);
