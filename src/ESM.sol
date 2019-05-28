@@ -1,6 +1,5 @@
 pragma solidity ^0.5.6;
 
-import { DSAuthority, DSAuth } from "ds-auth/auth.sol";
 import "ds-note/note.sol";
 
 contract GemLike {
