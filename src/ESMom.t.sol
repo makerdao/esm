@@ -43,6 +43,21 @@ contract ESMomTest is DSTest {
         assertTrue(mom.cap() == 0x42);
     }
 
+    function testFail_unauthorized_file_end() public {
+        mom = new ESMom(address(0x0), address(gem), address(end), address(sun), 10);
+        mom.file("end", address(0x42));
+    }
+
+    function testFail_unauthorized_file_sun() public {
+        mom = new ESMom(address(0x0), address(gem), address(end), address(sun), 10);
+        mom.file("sun", address(0x42));
+    }
+
+    function testFail_unauthorized_file_cap() public {
+        mom = new ESMom(address(0x0), address(gem), address(end), address(sun), 10);
+        mom.file("cap", 0x42);
+    }
+
     // -- actions --
     function test_free() public {
         ESM     prev = mom.esm();

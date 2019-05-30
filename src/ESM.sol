@@ -51,17 +51,6 @@ contract ESM is DSNote {
         require(z <= x);
     }
 
-
-    // -- admin --
-    function file(bytes32 job, address obj) external auth note {
-        if (job == "end") end = EndLike(obj);
-        if (job == "sun") sun = obj;
-    }
-
-    function file(bytes32 job, uint256 val) external auth note {
-        if (job == "cap") cap = val;
-    }
-
     // -- unauthed state changes --
     function fire() external note {
         require(state == START && full(), "esm/not-fireable");
