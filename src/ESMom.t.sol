@@ -60,21 +60,27 @@ contract ESMomTest is DSTest {
 
     // -- actions --
     function test_free() public {
-        ESM     prev = mom.esm();
-        address post = mom.free();
+        ESM esm = mom.esm();
+        mom.free();
 
-        assertTrue(address(prev) != post);
-        assertTrue(prev.state()  == prev.FREED());
-        assertEq(post, address(mom.esm()));
+        assertTrue(esm.state() == esm.FREED());
     }
 
     function test_burn() public {
-        ESM     prev = mom.esm();
-        address post = mom.burn();
+        ESM esm = mom.esm();
+        mom.burn();
 
-        assertTrue(address(prev) != post);
-        assertTrue(prev.state()  == prev.BURNT());
+        assertTrue(esm.state() == esm.BURNT());
+    }
+
+    function test_replace() public {
+        address prev = address(mom.esm());
+        address post = mom.replace();
+
+        assertTrue(prev != post);
         assertEq(post, address(mom.esm()));
+        assertEq(end.wards(prev), 0);
+        assertEq(end.wards(post), 1);
     }
 
     function testFail_unauthorized_free() public {
@@ -89,4 +95,9 @@ contract ESMomTest is DSTest {
         mum.burn();
     }
 
+    function testFail_unauthorized_swap() public {
+        ESMom mum = new ESMom(address(0x0), address(gem), address(end), address(sun), 10);
+
+        mum.swap();
+    }
 }
