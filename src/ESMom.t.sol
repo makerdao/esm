@@ -73,9 +73,9 @@ contract ESMomTest is DSTest {
         assertTrue(esm.state() == esm.BURNT());
     }
 
-    function test_replace() public {
+    function test_swap() public {
         address prev = address(mom.esm());
-        address post = mom.replace();
+        address post = mom.swap();
 
         assertTrue(prev != post);
         assertEq(post, address(mom.esm()));
