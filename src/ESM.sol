@@ -27,13 +27,11 @@ contract ESM is DSNote {
     uint256 public constant FIRED = 3;
     uint256 public          state = START;
 
-    mapping(address => uint256) public wards;
-    function rely(address usr) public auth note { wards[usr] = 1; }
-    function deny(address usr) public auth note { wards[usr] = 0; }
-    modifier auth() { require(wards[msg.sender] == 1, "esm/unauthorized"); _; }
+    address public owner;
+    modifier auth() { require(msg.sender == owner, "esm/unauthorized"); _; }
 
-    constructor(address ward, address gem_, address end_, address sun_, uint256 cap_) public {
-        wards[ward] = 1;
+    constructor(address owner_, address gem_, address end_, address sun_, uint256 cap_) public {
+        owner = owner_;
 
         gem = GemLike(gem_);
         end = EndLike(end_);

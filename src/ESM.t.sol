@@ -59,7 +59,7 @@ contract ESMTest is DSTest {
     }
 
     function test_constructor() public {
-        assertEq(esm.wards(address(gov)), 1);
+        assertEq(esm.owner(), address(gov));
         assertEq(address(esm.gem()), address(gem));
         assertEq(address(esm.end()), address(end));
         assertEq(esm.sun(), address(0x1));
@@ -258,13 +258,6 @@ contract ESMTest is DSTest {
     }
 
     // -- auth --
-    function testFail_unauthorized_rely() public {
-        esm.rely(address(0x0));
-    }
-    function testFail_unauthorized_deny() public {
-        esm.deny(address(0x0));
-    }
-
     function testFail_unauthorized_free() public {
         esm.free();
     }
