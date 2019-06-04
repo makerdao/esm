@@ -61,14 +61,17 @@ contract ESMomTest is DSTest {
     // -- actions --
     function test_free() public {
         ESM esm = mom.esm();
-        mom.free();
+        mom.swap();
+
+        mom.free(address(esm));
 
         assertTrue(esm.state() == esm.FREED());
     }
 
     function test_burn() public {
         ESM esm = mom.esm();
-        mom.burn();
+        mom.swap();
+        mom.burn(address(esm));
 
         assertTrue(esm.state() == esm.BURNT());
     }
@@ -83,16 +86,38 @@ contract ESMomTest is DSTest {
         assertEq(end.wards(post), 1);
     }
 
+    function testFail_free_unknown_esm() public {
+        mom.swap();
+        mom.free(address(0x0));
+    }
+
+    function testFail_burn_unknown_esm() public {
+        mom.swap();
+        mom.burn(address(0x0));
+    }
+
+    function testFail_free_current_esm() public {
+        mom.free(address(mom.esm()));
+    }
+
+    function testFail_burn_current_esm() public {
+        mom.burn(address(mom.esm()));
+    }
+
     function testFail_unauthorized_free() public {
         ESMom mum = new ESMom(address(0x0), address(gem), address(end), address(sun), 10);
+        ESM esm = mum.esm();
 
-        mum.free();
+        mom.swap();
+        mum.free(address(esm));
     }
 
     function testFail_unauthorized_burn() public {
         ESMom mum = new ESMom(address(0x0), address(gem), address(end), address(sun), 10);
+        ESM esm = mum.esm();
 
-        mum.burn();
+        mom.swap();
+        mum.burn(address(esm));
     }
 
     function testFail_unauthorized_swap() public {

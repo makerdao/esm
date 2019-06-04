@@ -16,6 +16,8 @@ contract ESMom is DSNote {
     address public sun;
     uint256 public cap;
 
+    mapping(address => uint256) public old;
+
     mapping(address => uint256) public wards;
     function rely(address usr) public auth note { wards[usr] = 1; }
     function deny(address usr) public auth note { wards[usr] = 0; }
@@ -41,11 +43,20 @@ contract ESMom is DSNote {
     }
 
     // -- actions --
-    function free() external auth note { esm.free(); }
-    function burn() external auth note { esm.burn(); }
+    function free(address esm_) external auth note {
+        require(old[esm_] == 1, "esmom/not-an-old-esm");
+
+        ESM(esm_).free();
+    }
+    function burn(address esm_) external auth note {
+        require(old[esm_] == 1, "esmom/not-an-old-esm");
+
+        ESM(esm_).burn();
+    }
 
     function swap() external auth note returns (address) {
         end.deny(address(esm));
+        old[address(esm)] = 1;
 
         esm = new ESM(address(this), gem, address(end), sun, cap);
         end.rely(address(esm));
