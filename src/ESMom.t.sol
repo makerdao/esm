@@ -83,12 +83,30 @@ contract ESMomTest is DSTest {
         assertTrue(esm.state() == esm.FREED());
     }
 
+    function test_free_old_esm() public {
+        ESM old = mom.esm();
+        mom.swap();
+
+        mom.free(address(old));
+
+        assertTrue(old.state() == old.FREED());
+    }
+
     function test_burn() public {
         ESM esm = mom.esm();
         mom.swap();
         mom.burn(address(esm));
 
         assertTrue(esm.state() == esm.BURNT());
+    }
+
+    function test_burn_old_esm() public {
+        ESM old = mom.esm();
+        mom.swap();
+
+        mom.burn(address(old));
+
+        assertTrue(old.state() == old.BURNT());
     }
 
     function test_swap() public {
