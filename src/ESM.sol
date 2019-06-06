@@ -28,18 +28,18 @@ contract EndLike {
 }
 
 contract ESM is DSNote {
-    uint256 public cap;
     GemLike public gem;
     EndLike public end;
+    uint256 public min;
     uint256 public sum;
     bool    public fired;
 
     mapping(address => uint256) public gems;
 
-    constructor(address gem_, address end_, uint256 cap_) public {
+    constructor(address gem_, address end_, uint256 min_) public {
         gem = GemLike(gem_);
         end = EndLike(end_);
-        cap = cap_;
+        min = min_;
     }
 
     // -- math --
@@ -54,7 +54,7 @@ contract ESM is DSNote {
 
     function fire() external note {
         require(!fired, "esm/already-fired");
-        require(sum >= cap, "esm/cap-not-reached");
+        require(sum >= min, "esm/min-not-reached");
 
         end.cage();
 
@@ -72,6 +72,6 @@ contract ESM is DSNote {
 
     // -- helpers --
     function full() external view returns (bool) {
-        return sum >= cap;
+        return sum >= min;
     }
 }

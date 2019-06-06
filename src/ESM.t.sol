@@ -48,7 +48,7 @@ contract ESMTest is DSTest {
     ESM     esm;
     DSToken gem;
     EndTest end;
-    uint256 cap;
+    uint256 min;
     address sun;
     TestUsr usr;
     TestUsr gov;
@@ -65,7 +65,7 @@ contract ESMTest is DSTest {
 
         assertEq(address(esm.gem()), address(gem));
         assertEq(address(esm.end()), address(end));
-        assertEq(esm.cap(), 10);
+        assertEq(esm.min(), 10);
         assertTrue(!esm.fired());
     }
 
@@ -92,7 +92,7 @@ contract ESMTest is DSTest {
         usr.callJoin(esm, 10);
     }
 
-    function testFail_fire_cap_not_met() public {
+    function testFail_fire_min_not_met() public {
         assertTrue(!esm.full());
 
         gov.callFire(esm);
@@ -110,7 +110,7 @@ contract ESMTest is DSTest {
         assertEq(gem.balanceOf(address(usr)), 0);
     }
 
-    function test_join_over_cap() public {
+    function test_join_over_min() public {
         gem.mint(address(usr), 20);
         esm = makeWithCap(10);
 
@@ -147,7 +147,7 @@ contract ESMTest is DSTest {
     }
 
     // -- internal test helpers --
-    function makeWithCap(uint256 cap_) internal returns (ESM) {
-        return new ESM(address(gem), address(end), cap_);
+    function makeWithCap(uint256 min_) internal returns (ESM) {
+        return new ESM(address(gem), address(end), min_);
     }
 }
