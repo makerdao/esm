@@ -32,14 +32,9 @@ contract ESM is DSNote {
     GemLike public gem;
     EndLike public end;
     uint256 public sum;
+    bool    public fired;
 
     mapping(address => uint256) public gems;
-
-    uint256 public constant START = 0;
-    uint256 public constant FREED = 1;
-    uint256 public constant BURNT = 2;
-    uint256 public constant FIRED = 3;
-    uint256 public          state = START;
 
     constructor(address gem_, address end_, uint256 cap_) public {
         gem = GemLike(gem_);
@@ -58,20 +53,21 @@ contract ESM is DSNote {
     }
 
     function fire() external note {
-        require(state == START && sum >= cap, "esm/not-fireable");
+        require(!fired, "esm/already-fired");
+        require(sum >= cap, "esm/cap-not-reached");
 
         end.cage();
 
-        state = FIRED;
+        fired = true;
     }
 
     function join(uint256 wad) external note {
-        require(state == START, "esm/not-joinable");
+        require(!fired, "esm/already-fired");
 
         gems[msg.sender] = add(gems[msg.sender], wad);
         sum = add(sum, wad);
 
-        require(gem.transferFrom(msg.sender, address(0x0), wad), "esm/failed-transfer");
+        require(gem.transferFrom(msg.sender, address(0x0), wad), "esm/transfer-failed");
     }
 
     // -- helpers --

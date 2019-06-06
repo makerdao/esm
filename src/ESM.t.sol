@@ -66,20 +66,14 @@ contract ESMTest is DSTest {
         assertEq(address(esm.gem()), address(gem));
         assertEq(address(esm.end()), address(end));
         assertEq(esm.cap(), 10);
-    }
-
-    // -- state transitions --
-    function test_initial_state() public {
-        esm = makeWithCap(10);
-
-        assertStateEq(esm.START());
+        assertTrue(!esm.fired());
     }
 
     function test_fire() public {
         esm = makeWithCap(0);
         gov.callFire(esm);
 
-        assertStateEq(esm.FIRED());
+        assertTrue(esm.fired());
         assertEq(end.live(), 0);
     }
 
@@ -94,6 +88,7 @@ contract ESMTest is DSTest {
         esm = makeWithCap(0);
         gov.callFire(esm);
         gem.mint(address(usr), 10);
+
         usr.callJoin(esm, 10);
     }
 
@@ -152,10 +147,6 @@ contract ESMTest is DSTest {
     }
 
     // -- internal test helpers --
-    function assertStateEq(uint256 state) internal view {
-        esm.state() == state;
-    }
-
     function makeWithCap(uint256 cap_) internal returns (ESM) {
         return new ESM(address(gem), address(end), cap_);
     }
