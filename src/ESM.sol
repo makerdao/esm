@@ -15,6 +15,7 @@
 
 pragma solidity ^0.5.6;
 
+import "ds-math/math.sol";
 import "ds-note/note.sol";
 
 contract GemLike {
@@ -27,7 +28,7 @@ contract EndLike {
     function cage() public;
 }
 
-contract ESM is DSNote {
+contract ESM is DSMath, DSNote {
     uint256 public cap;
     GemLike public gem;
     EndLike public end;
@@ -54,16 +55,6 @@ contract ESM is DSNote {
         end = EndLike(end_);
         sun = sun_;
         cap = cap_;
-    }
-
-    // -- math --
-    function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        z = x + y;
-        require(z >= x);
-    }
-    function sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        z = x - y;
-        require(z <= x);
     }
 
     // -- admin --
