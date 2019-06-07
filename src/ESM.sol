@@ -53,8 +53,8 @@ contract ESM is DSNote {
     }
 
     function fire() external note {
-        require(!fired, "esm/already-fired");
-        require(sum >= min, "esm/min-not-reached");
+        require(!fired,  "esm/already-fired");
+        require(full(),  "esm/min-not-reached");
 
         end.cage();
 
@@ -71,7 +71,7 @@ contract ESM is DSNote {
     }
 
     // -- helpers --
-    function full() external view returns (bool) {
+    function full() public view returns (bool) {
         return sum >= min;
     }
 }
