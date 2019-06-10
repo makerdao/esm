@@ -32,13 +32,15 @@ contract ESM is DSNote {
     EndLike public end;
     uint256 public min;
     uint256 public sum;
+    address public sun;
     bool    public fired;
 
     mapping(address => uint256) public gems;
 
-    constructor(address gem_, address end_, uint256 min_) public {
+    constructor(address gem_, address end_, address sun_, uint256 min_) public {
         gem = GemLike(gem_);
         end = EndLike(end_);
+        sun = sun_;
         min = min_;
     }
 
@@ -67,7 +69,7 @@ contract ESM is DSNote {
         gems[msg.sender] = add(gems[msg.sender], wad);
         sum = add(sum, wad);
 
-        require(gem.transferFrom(msg.sender, address(0x0), wad), "esm/transfer-failed");
+        require(gem.transferFrom(msg.sender, sun, wad), "esm/transfer-failed");
     }
 
     // -- helpers --
