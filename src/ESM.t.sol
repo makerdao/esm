@@ -20,7 +20,7 @@ import "ds-token/token.sol";
 
 import "./ESM.sol";
 
-contract EndTest is EndLike {
+contract EndMock {
     uint256 public live;
 
     constructor()   public { live = 1; }
@@ -47,7 +47,7 @@ contract TestUsr {
 contract ESMTest is DSTest {
     ESM     esm;
     DSToken gem;
-    EndTest end;
+    EndMock end;
     uint256 min;
     address sun;
     TestUsr usr;
@@ -55,7 +55,7 @@ contract ESMTest is DSTest {
 
     function setUp() public {
         gem = new DSToken("GOLD");
-        end = new EndTest();
+        end = new EndMock();
         usr = new TestUsr(gem);
         gov = new TestUsr(gem);
         sun = address(0x42);
