@@ -106,7 +106,7 @@ contract ESMTest is DSTest {
 
         usr.callJoin(esm, 10);
 
-        assertEq(esm.sum(), 10);
+        assertEq(esm.Sum(), 10);
         assertEq(gem.balanceOf(address(esm)), 0);
         assertEq(gem.balanceOf(address(usr)), 0);
         assertEq(gem.balanceOf(address(sun)), 10);
@@ -144,7 +144,7 @@ contract ESMTest is DSTest {
         esm = makeWithCap(10);
         gem.mint(address(esm), 10);
 
-        assertEq(esm.sum(), 0);
+        assertEq(esm.Sum(), 0);
         assertTrue(!esm.full());
     }
 

@@ -31,11 +31,11 @@ contract ESM is DSNote {
     GemLike public gem;
     EndLike public end;
     uint256 public min;
-    uint256 public sum;
+    uint256 public Sum;
     address public sun;
     bool    public fired;
 
-    mapping(address => uint256) public gems;
+    mapping(address => uint256) public sum;
 
     constructor(address gem_, address end_, address sun_, uint256 min_) public {
         gem = GemLike(gem_);
@@ -66,14 +66,14 @@ contract ESM is DSNote {
     function join(uint256 wad) external note {
         require(!fired, "esm/already-fired");
 
-        gems[msg.sender] = add(gems[msg.sender], wad);
-        sum = add(sum, wad);
+        sum[msg.sender] = add(sum[msg.sender], wad);
+        Sum = add(Sum, wad);
 
         require(gem.transferFrom(msg.sender, sun, wad), "esm/transfer-failed");
     }
 
     // -- helpers --
     function full() public view returns (bool) {
-        return sum >= min;
+        return Sum >= min;
     }
 }
