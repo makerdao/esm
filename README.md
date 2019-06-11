@@ -2,33 +2,35 @@
 
 Emergency Shutdown Module
 
+## Description
+
+The ESM is a contract with the ability to call `end.cage()`, i.e. trigger an
+Emergency Shutdown (aka Global Settlement).
+
+MKR holders `join` their funds, which are then immediately burnt. When the ESM's
+internal `sum` balance is equal to or greater than the `min` threshold, the ESM
+can be `fire`d.
+
+It is meant to be used by an MKR minority to thwart two types of attack:
+
+* malicious governance
+* critical bug
+
+In the former case, the pledgers will have no expectation of recovering the
+funds (as that would require a malicious majority to pass the required vote),
+and their only option is to set up an alternative fork in which the majority's
+funds are slashed.
+
+In the latter case, governance can choose to refund the ESM pledgers by minting new
+tokens.
+
+If governance wants to disarm the ESM, it can only do so by removing its
+authorization to call `end.cage()`.
+
 ## Invariants
 
-* `fire` can be triggered by anyone
-* `fire` can be triggered iff the ESM's balance is >= the `cap`
-* `free` and `burn` are `auth`ed
-* state transitions are only allowed in the `START` and `FIRED` states
-* cycles are not allowed, i.e. the ESM is single-use
-* `join` can be called only in the `START` state
-* `join` can be called even after the `cap` has been reached
-* `exit` can be called only in the `FREED` state
-* the `cap` only accounts for `gem`s transferred via `join`, but `burn` burns
-  the whole balance of the ESM
-
-## Allowed state transitions
-
-* `start` -> `freed`
-* `start` -> `burnt`
-* `start` -> `fired`
-
-* `fired` -> `freed`
-* `fired` -> `burnt`
-
-## Authorization
-
-The ESM is meant to sit behind a DSPause, who's authorized to call its `auth`ed
-methods (either by being passed as `ward` in the constructor, or via a
-subsequent call to `rely`).
-
-The DSPause would then have the Chief as its `authority`, allowing the `hat` to
-plot plans on it.
+* `fire` can be called by anyone
+* `fire` can be called only once
+* `fire` requires `sum` to be >= `min`
+* `join` can only be called before `fire`
+* gems are burnt immediately upon `join`ing
