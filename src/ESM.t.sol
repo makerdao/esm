@@ -49,7 +49,7 @@ contract ESMTest is DSTest {
     DSToken gem;
     EndMock end;
     uint256 min;
-    address sun;
+    address pit;
     TestUsr usr;
     TestUsr gov;
 
@@ -58,7 +58,7 @@ contract ESMTest is DSTest {
         end = new EndMock();
         usr = new TestUsr(gem);
         gov = new TestUsr(gem);
-        sun = address(0x42);
+        pit = address(0x42);
     }
 
     function test_constructor() public {
@@ -109,7 +109,7 @@ contract ESMTest is DSTest {
         assertEq(esm.Sum(), 10);
         assertEq(gem.balanceOf(address(esm)), 0);
         assertEq(gem.balanceOf(address(usr)), 0);
-        assertEq(gem.balanceOf(address(sun)), 10);
+        assertEq(gem.balanceOf(address(pit)), 10);
     }
 
     function test_join_over_min() public {
@@ -150,6 +150,6 @@ contract ESMTest is DSTest {
 
     // -- internal test helpers --
     function makeWithCap(uint256 min_) internal returns (ESM) {
-        return new ESM(address(gem), address(end), sun, min_);
+        return new ESM(address(gem), address(end), pit, min_);
     }
 }
