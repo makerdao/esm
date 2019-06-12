@@ -28,14 +28,14 @@ contract EndLike {
 }
 
 contract ESM is DSNote {
-    GemLike public gem;
-    EndLike public end;
-    uint256 public min;
-    uint256 public Sum;
-    address public pit;
+    GemLike public gem; // collateral
+    EndLike public end; // cage module
+    address public pit; // burner
+    uint256 public min; // threshold
     bool    public fired;
 
-    mapping(address => uint256) public sum;
+    mapping(address => uint256) public sum; // per-address balance
+    uint256 public Sum; // total balance
 
     constructor(address gem_, address end_, address pit_, uint256 min_) public {
         gem = GemLike(gem_);
