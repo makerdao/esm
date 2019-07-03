@@ -1,0 +1,17 @@
+{
+  "name": "esm",
+  "src": {
+    "specification": "esm.md",
+    "smt_prelude": "prelude.smt2.md",
+    "rules": [
+      "storage.k.md",
+      "lemmas.k.md"
+    ]
+  },
+  "implementations": {
+    "ESM": {
+      "solc_output": "../out/ESM.sol.json"
+    }
+  },
+  "dapp_root": ".."
+}
