@@ -17,7 +17,7 @@ contract ESM is DSNote {
     EndLike public end; // cage module
     address public pit; // burner
     uint256 public min; // threshold
-    bool    public fired;
+    uint256 public fired;
 
     mapping(address => uint256) public sum; // per-address balance
     uint256 public Sum; // total balance
@@ -36,16 +36,16 @@ contract ESM is DSNote {
     }
 
     function fire() external note {
-        require(!fired,  "esm/already-fired");
+        require(fired == 0, "esm/already-fired");
         require(full(),  "esm/min-not-reached");
 
         end.cage();
 
-        fired = true;
+        fired = 1;
     }
 
     function join(uint256 wad) external note {
-        require(!fired, "esm/already-fired");
+        require(fired == 0, "esm/already-fired");
 
         sum[msg.sender] = add(sum[msg.sender], wad);
         Sum = add(Sum, wad);

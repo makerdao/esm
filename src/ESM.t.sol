@@ -52,14 +52,14 @@ contract ESMTest is DSTest {
         assertEq(address(esm.gem()), address(gem));
         assertEq(address(esm.end()), address(end));
         assertEq(esm.min(), 10);
-        assertTrue(!esm.fired());
+        assertEq(esm.fired(), 0);
     }
 
     function test_fire() public {
         esm = makeWithCap(0);
         gov.callFire(esm);
 
-        assertTrue(esm.fired());
+        assertEq(esm.fired(), 1);
         assertEq(end.live(), 0);
     }
 
