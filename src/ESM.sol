@@ -34,10 +34,6 @@ contract ESM is DSNote {
         z = x + y;
         require(z >= x);
     }
-    function sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        z = x - y;
-        require(z <= x);
-    }
 
     function fire() external note {
         require(!fired,  "esm/already-fired");
