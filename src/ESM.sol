@@ -54,7 +54,7 @@ contract ESM is DSNote {
     }
 
     // -- helpers --
-    function full() public view returns (bool) {
+    function full() internal view returns (bool) {
         return Sum >= min;
     }
 }

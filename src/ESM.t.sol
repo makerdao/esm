@@ -79,7 +79,7 @@ contract ESMTest is DSTest {
     }
 
     function testFail_fire_min_not_met() public {
-        assertTrue(!esm.full());
+        assertTrue(esm.Sum() <= esm.min());
 
         gov.callFire(esm);
     }
@@ -115,14 +115,14 @@ contract ESMTest is DSTest {
     function test_full() public {
         esm = makeWithCap(10);
 
-        assertTrue(!esm.full());
+        assertTrue(esm.Sum() <= esm.min());
         gem.mint(address(usr), 10);
 
         usr.callJoin(esm, 5);
-        assertTrue(!esm.full());
+        assertTrue(esm.Sum() <= esm.min());
 
         usr.callJoin(esm, 5);
-        assertTrue(esm.full());
+        assertTrue(esm.Sum() >= esm.min());
     }
 
     function test_full_keeps_internal_balance() public {
@@ -130,7 +130,7 @@ contract ESMTest is DSTest {
         gem.mint(address(esm), 10);
 
         assertEq(esm.Sum(), 0);
-        assertTrue(!esm.full());
+        assertTrue(esm.Sum() <= esm.min());
     }
 
     // -- internal test helpers --
