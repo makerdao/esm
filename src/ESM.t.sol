@@ -55,6 +55,13 @@ contract ESMTest is DSTest {
         assertEq(esm.fired(), 0);
     }
 
+    function test_Sum_is_internal_balance() public {
+        esm = makeWithCap(10);
+        gem.mint(address(esm), 10);
+
+        assertEq(esm.Sum(), 0);
+    }
+
     function test_fire() public {
         esm = makeWithCap(0);
         gov.callFire(esm);
@@ -79,6 +86,7 @@ contract ESMTest is DSTest {
     }
 
     function testFail_fire_min_not_met() public {
+        esm = makeWithCap(10);
         assertTrue(esm.Sum() <= esm.min());
 
         gov.callFire(esm);
@@ -109,28 +117,6 @@ contract ESMTest is DSTest {
         assertEq(gem.balanceOf(address(usr)), 0);
 
         usr.callJoin(esm, 10);
-    }
-
-    // -- helpers --
-    function test_full() public {
-        esm = makeWithCap(10);
-
-        assertTrue(esm.Sum() <= esm.min());
-        gem.mint(address(usr), 10);
-
-        usr.callJoin(esm, 5);
-        assertTrue(esm.Sum() <= esm.min());
-
-        usr.callJoin(esm, 5);
-        assertTrue(esm.Sum() >= esm.min());
-    }
-
-    function test_full_keeps_internal_balance() public {
-        esm = makeWithCap(10);
-        gem.mint(address(esm), 10);
-
-        assertEq(esm.Sum(), 0);
-        assertTrue(esm.Sum() <= esm.min());
     }
 
     // -- internal test helpers --

@@ -37,7 +37,7 @@ contract ESM is DSNote {
 
     function fire() external note {
         require(fired == 0, "esm/already-fired");
-        require(full(),  "esm/min-not-reached");
+        require(Sum >= min,  "esm/min-not-reached");
 
         end.cage();
 
@@ -51,10 +51,5 @@ contract ESM is DSNote {
         Sum = add(Sum, wad);
 
         require(gem.transferFrom(msg.sender, pit, wad), "esm/transfer-failed");
-    }
-
-    // -- helpers --
-    function full() internal view returns (bool) {
-        return Sum >= min;
     }
 }
