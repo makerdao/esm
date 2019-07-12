@@ -1,7 +1,5 @@
 pragma solidity ^0.5.6;
 
-import "ds-note/note.sol";
-
 contract GemLike {
     function balanceOf(address) public view returns (uint256);
     function transfer(address, uint256) public returns (bool);
@@ -12,7 +10,7 @@ contract EndLike {
     function cage() public;
 }
 
-contract ESM is DSNote {
+contract ESM {
     GemLike public gem; // collateral
     EndLike public end; // cage module
     address public pit; // burner
@@ -21,6 +19,34 @@ contract ESM is DSNote {
 
     mapping(address => uint256) public sum; // per-address balance
     uint256 public Sum; // total balance
+
+    // --- Logs ---
+    event LogNote(
+        bytes4   indexed  sig,
+        address  indexed  usr,
+        bytes32  indexed  arg1,
+        bytes32  indexed  arg2,
+        bytes             data
+    ) anonymous;
+
+    modifier note {
+        _;
+        assembly {
+            // log an 'anonymous' event with a constant 6 words of calldata
+            // and four indexed topics: selector, caller, arg1 and arg2
+            let mark := msize                         // end of memory ensures zero
+            mstore(0x40, add(mark, 288))              // update free memory pointer
+            mstore(mark, 0x20)                        // bytes type data offset
+            mstore(add(mark, 0x20), 224)              // bytes size (padded)
+            calldatacopy(add(mark, 0x40), 0, 224)     // bytes payload
+            log4(mark, 288,                           // calldata
+                 shl(224, shr(224, calldataload(0))), // msg.sig
+                 caller,                              // msg.sender
+                 calldataload(4),                     // arg1
+                 calldataload(36)                     // arg2
+                )
+        }
+    }
 
     constructor(address gem_, address end_, address pit_, uint256 min_) public {
         gem = GemLike(gem_);
