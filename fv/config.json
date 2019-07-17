@@ -11,6 +11,9 @@
   "implementations": {
     "ESM": {
       "solc_output": "../out/ESM.sol.json"
+    },
+    "DSToken": {
+      "solc_output": "../out/ESM.t.sol.json"
     }
   },
   "dapp_root": ".."
