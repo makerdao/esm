@@ -62,7 +62,7 @@ contract ESM {
     }
 
     function fire() external note {
-        require(fired == 0, "esm/already-fired");
+        require(fired == 0,  "esm/already-fired");
         require(Sum >= min,  "esm/min-not-reached");
 
         end.cage();
