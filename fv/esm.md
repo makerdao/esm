@@ -71,30 +71,31 @@ interface join(uint256 wad)
 types
   Pit : address
   Fired : uint256
-  Zum : uint256
-  Usm : uint256
+  Total : uint256
+  Usr_sum : uint256
   Bal_s : uint256
   Bal_d : uint256
-  Appr : uint256
+  Allowance : uint256
   Owner : address
   Stopped : bool
   DSToken : address DSToken
 
 storage
+  gem |-> DSToken
   pit |-> Pit
   fired |-> Fired
-  sum[CALLER_ID] |-> Usm => Usm + wad
-  Sum |-> Zum => Zum + wad
+  sum[CALLER_ID] |-> Usr_sum => Usr_sum + wad
+  Sum |-> Total => Total + wad
 
 storage DSToken
   balances[CALLER_ID] |-> Bal_s => Bal_s - wad
   balances[Pit] |-> Bal_d => Bal_d + wad
   owner_stopped |-> #WordPackAddrUInt8(Owner, Stopped)
-  approvals[CALLER_ID][ACCT_ID] |-> Appr => #if (CALLER_ID =/= ACCT_ID and Appr =/= maxUInt256) #then Appr - wad #else Appr #fi
+  approvals[CALLER_ID][ACCT_ID] |-> Allowance => #if (CALLER_ID == ACCT_ID or Allowance == maxUInt256) #then Allowance #else Allowance - wad #fi
 
 iff in range uint256
-  Usm + wad
-  Zum + wad
+  Usr_sum + wad
+  Total + wad
   Bal_s - wad
   Bal_d + wad
 
@@ -102,14 +103,15 @@ iff
   Fired == 0
   VCallValue == 0
   Stopped == 0
-  (Appr == maxUInt256) or (Appr >= wad)
+  (Allowance == maxUInt256) or (Allowance >= wad)
+  VCallDepth < 1024
 
 if
   CALLER_ID =/= Pit
 
 calls
   DSToken.transferFrom
-
+  ESM.add
 ```
 
 Let's prove `DSToken.transferFrom`:

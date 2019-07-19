@@ -1,6 +1,12 @@
 ESM storage:
 
 ```k
+syntax Int ::= "#ESM.gem" [function]
+rule #ESM.gem => 0
+
+syntax Int ::= "#ESM.end" [function]
+rule #ESM.gem => 1
+
 syntax Int ::= "#ESM.pit" [function]
 rule #ESM.pit => 2
 
