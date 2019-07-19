@@ -76,6 +76,6 @@ contract ESM {
         sum[msg.sender] = add(sum[msg.sender], wad);
         Sum = add(Sum, wad);
 
-        require(gem.transferFrom(msg.sender, pit, wad), "esm/transfer-failed");
+        gem.transferFrom(msg.sender, pit, wad);
     }
 }
