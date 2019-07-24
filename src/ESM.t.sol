@@ -21,10 +21,6 @@ contract TestUsr {
     constructor(DSToken gem_) public {
         gem = gem_;
     }
-    function callFire(ESM esm) external {
-        esm.fire();
-    }
-
     function callJoin(ESM esm, uint256 wad) external {
         gem.approve(address(esm), uint256(-1));
 
@@ -67,7 +63,7 @@ contract ESMTest is DSTest {
 
     function test_fire() public {
         esm = makeWithCap(0);
-        gov.callFire(esm);
+        esm.fire();
 
         assertEq(esm.fired(), 1);
         assertEq(end.live(), 0);
@@ -75,14 +71,14 @@ contract ESMTest is DSTest {
 
     function testFail_fire_twice() public {
         esm = makeWithCap(0);
-        gov.callFire(esm);
+        esm.fire();
 
-        gov.callFire(esm);
+        esm.fire();
     }
 
     function testFail_join_after_fired() public {
         esm = makeWithCap(0);
-        gov.callFire(esm);
+        esm.fire();
         gem.mint(address(usr), 10);
 
         usr.callJoin(esm, 10);
@@ -92,7 +88,7 @@ contract ESMTest is DSTest {
         esm = makeWithCap(10);
         assertTrue(esm.Sum() <= esm.min());
 
-        gov.callFire(esm);
+        esm.fire();
     }
 
     // -- user actions --
