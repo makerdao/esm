@@ -3,6 +3,9 @@ pragma solidity ^0.5.6;
 import "ds-test/test.sol";
 import "ds-token/token.sol";
 
+// this dependency is only here for FV
+import "dss/end.sol";
+
 import "./ESM.sol";
 
 contract EndMock {
