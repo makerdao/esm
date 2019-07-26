@@ -39,8 +39,7 @@ if
   #sizeWordStack(WS) <= 1000
 ```
 
-`end.cage` hasn't been FV'd yet, so we can only FV `full` with `end.cage`
-removed:
+Let's specify `fire`:
 
 ```
 behaviour fire of ESM
@@ -62,7 +61,7 @@ if
   #sizeWordStack(CD) == 0
 ```
 
-so let's do `join`
+And now let's do `join`:
 
 ```act
 behaviour join of ESM
@@ -146,4 +145,153 @@ if
   src =/= dst
 
 returns 1
+```
+
+End proofs from k-dss:
+
+```
+behaviour cage-surplus of End
+interface cage()
+
+for all
+
+    Vat : address Vat
+    Cat : address Cat
+    Vow : address Vow
+    Flapper : address Flapper
+    Flopper : address Flopper
+    FlapVat : address
+    VowVat  : address
+
+    Live : uint256
+    When : uint256
+
+    VatLive  : uint256
+    CatLive  : uint256
+    VowLive  : uint256
+    FlapLive : uint256
+    FlopLive : uint256
+
+    CallerMay : uint256
+    EndMayVat : uint256
+    EndMayCat : uint256
+    EndMayVow : uint256
+    VowMayFlap : uint256
+    VowMayFlop : uint256
+
+    Dai_f : uint256
+    Sin_v : uint256
+    Dai_v : uint256
+    Debt  : uint256
+    Vice  : uint256
+    Sin   : uint256
+    Ash   : uint256
+
+storage
+  // whether CALLER_ID is an owner of End
+  wards[CALLER_ID] |-> CallerMay => CallerMay
+  // system liveness
+  live             |-> Live      => 0
+  // time of cage
+  when             |-> When      => TIME
+  // Vat that this End points to
+  vat              |-> Vat       => Vat
+  // cat that this End points to
+  cat              |-> Cat       => Cat
+  // Vow that this End points to
+  vow              |-> Vow       => Vow
+
+
+storage Vat
+  // whether ACCT_ID is an owner of Vat
+  wards[ACCT_ID]        |-> EndMayVat => EndMayVat
+  // system status
+  live                  |-> VatLive   => 0
+  // dai assigned to Flapper
+  dai[Flapper]          |-> Dai_f     => 0
+  // dai assigned to Vow
+  dai[Vow]              |-> Dai_v     => (Dai_v + Dai_f) - Sin_v
+  // system debt assigned to Vow
+  sin[Vow]              |-> Sin_v     => 0
+  // total dai issued from the system
+  debt                  |-> Debt      => Debt - Sin_v
+  // total system debt
+  vice                  |-> Vice      => Vice - Sin_v
+  // whether Flapper can spend the resources of Flapper
+  can[Flapper][Flapper] |-> _         => _
+
+
+storage Cat
+  // system liveness
+  live           |-> CatLive   => 0
+  //
+  wards[ACCT_ID] |-> EndMayCat => EndMayCat
+
+
+storage Vow
+  // whether ACCT_ID is an owner of Vow
+  wards[ACCT_ID] |-> EndMayVow => EndMayVow
+  // Vat that this Vow points to
+  vat            |-> VowVat    => VowVat
+  // Flapper that this Vow points to
+  flapper        |-> Flapper   => Flapper
+  // Flopper that this Vow points to
+  flopper        |-> Flopper   => Flopper
+  // liveness flag
+  live           |-> VowLive   => 0
+  // total queued sin
+  Sin            |-> Sin       => 0
+  // total sin in debt auctions
+  Ash            |-> Ash       => 0
+
+
+storage Flapper
+  // whether Vow is an owner of Flop
+  wards[Vow] |-> VowMayFlap => VowMayFlap
+  // dai token
+  vat        |-> FlapVat    => FlapVat
+  // liveness flag
+  live       |-> FlapLive   => 0
+
+
+storage Flopper
+  // whether Vow is an owner of Flop
+  wards[Vow] |-> VowMayFlop => VowMayFlop
+  // liveness flag
+  live       |-> FlopLive   => 0
+
+iff
+
+    VCallValue == 0
+    VCallDepth < 1022
+    Live == 1
+    CallerMay == 1
+    EndMayVat == 1
+    EndMayCat == 1
+    EndMayVow == 1
+    VowMayFlap == 1
+    VowMayFlop == 1
+
+iff in range uint256
+
+    Dai_v + Dai_f
+    Debt - Sin_v
+    Vice - Sin_v
+
+if
+    Dai_v + Dai_f > Sin_v
+    Flapper =/= Vow
+    Flapper =/= Vat
+    Flopper =/= Vow
+    Flopper =/= Vat
+    Flopper =/= Flapper
+    FlapVat == Vat
+    VowVat  == Vat
+    VowVat  =/= Vow
+    FlapVat =/= Vow
+
+calls
+    Vat.cage
+    Cat.cage
+    Vow.cage-surplus
 ```
