@@ -29,7 +29,7 @@ DSToken storage:
 syntax Int ::= "#DSToken.balances" "[" Int "]" [function]
 rule #DSToken.balances[A] => #hashedLocation("Solidity", 1, A)
 
-syntax Int ::= "#DSToken.approvals" "[" Int "]" "[" Int "]" [function]
+syntax Int ::= "#DSToken.approvals" "[" Int "][" Int "]" [function]
 rule #DSToken.approvals[A][B] => #hashedLocation("Solidity", 2, A B)
 
 syntax Int ::= "#DSToken.owner_stopped" [function]
