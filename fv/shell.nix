@@ -5,6 +5,7 @@ with import pkgsSrc {};
 stdenv.mkDerivation {
   name = "esm-fv";
   buildInputs = [
+    bc
     flex
     getopt
     utillinux
