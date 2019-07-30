@@ -9,11 +9,14 @@
     ]
   },
   "implementations": {
-    "ESM": {
-      "solc_output": "../out/ESM.sol.json"
+   "ESM": {
+      "src": "src/ESM.sol"
     },
     "DSToken": {
-      "solc_output": "../out/ESM.t.sol.json"
+      "src": "lib/ds-token/src/token.sol"
+    },
+    "End": {
+      "src": "lib/dss/src/end.sol"
     }
   },
   "dapp_root": ".."
