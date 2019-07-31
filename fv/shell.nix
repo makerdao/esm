@@ -8,15 +8,15 @@ stdenv.mkDerivation {
     bc
     flex
     getopt
-    utillinux
     git
     gnumake
     jq
     nodejs
     openjdk8
     parallel
-    zip
+    utillinux
     z3
+    zip
   ];
 
   shellHook = ''
