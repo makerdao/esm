@@ -26,25 +26,32 @@ interface GemLike {
 }
 
 interface EndLike {
+    function live() external view returns (uint256);
+    function vat()  external view returns (address);
     function cage() external;
 }
 
+interface VatLike {
+    function deny(address) external;
+}
+
 contract ESM {
-    GemLike public immutable gem; // collateral
-    EndLike public immutable end; // cage module
-    address public immutable pit; // burner
-    uint256 public immutable min; // threshold
-    uint256 public fired;
+    GemLike public immutable gem;   // collateral
+    EndLike public immutable end;   // cage module
+    address public immutable proxy; // Pause proxy
+    address public immutable pit;   // burner
+    uint256 public immutable min;   // threshold
 
     mapping(address => uint256) public sum; // per-address balance
     uint256 public Sum; // total balance
 
-    event Fire();
+    event Fire(bool);
     event Join(address indexed usr, uint256 wad);
 
-    constructor(address gem_, address end_, address pit_, uint256 min_) public {
+    constructor(address gem_, address end_, address proxy_, address pit_, uint256 min_) public {
         gem = GemLike(gem_);
         end = EndLike(end_);
+        proxy = proxy_;
         pit = pit_;
         min = min_;
     }
@@ -55,23 +62,24 @@ contract ESM {
         require(z >= x);
     }
 
-    function fire() external {
-        require(fired == 0,  "esm/already-fired");
-        require(Sum >= min,  "esm/min-not-reached");
+    function fire(bool denyProxy) external {
+        require(Sum >= min,  "ESM/min-not-reached");
 
         end.cage();
+        if (denyProxy) {
+            VatLike(end.vat()).deny(proxy);
+        }
 
-        fired = 1;
-        emit Fire();
+        emit Fire(denyProxy);
     }
 
     function join(uint256 wad) external {
-        require(fired == 0, "esm/already-fired");
+        require(end.live() == 1, "ESM/system-already-shutdown");
 
         sum[msg.sender] = add(sum[msg.sender], wad);
         Sum = add(Sum, wad);
 
-        require(gem.transferFrom(msg.sender, pit, wad), "esm/transfer-failed");
+        require(gem.transferFrom(msg.sender, pit, wad), "ESM/transfer-failed");
         emit Join(msg.sender, wad);
     }
 }
