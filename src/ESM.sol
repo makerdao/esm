@@ -45,7 +45,7 @@ contract ESM {
     mapping(address => uint256) public sum; // per-address balance
     uint256 public Sum; // total balance
 
-    event Fire(bool);
+    event Fire();
     event Join(address indexed usr, uint256 wad);
 
     constructor(address gem_, address end_, address proxy_, address pit_, uint256 min_) public {
@@ -62,15 +62,15 @@ contract ESM {
         require(z >= x);
     }
 
-    function fire(bool denyProxy) external {
+    function fire() external {
         require(Sum >= min,  "ESM/min-not-reached");
 
         end.cage();
-        if (denyProxy) {
+        if (proxy != address(0)) {
             VatLike(end.vat()).deny(proxy);
         }
 
-        emit Fire(denyProxy);
+        emit Fire();
     }
 
     function join(uint256 wad) external {
