@@ -21,6 +21,7 @@ pragma solidity >=0.6.12;
 
 interface GemLike {
     function balanceOf(address) external view returns (uint256);
+    function burn(uint256) external;
     function transfer(address, uint256) external returns (bool);
     function transferFrom(address, address, uint256) external returns (bool);
 }
@@ -39,7 +40,6 @@ contract ESM {
     GemLike public immutable gem;   // collateral
     EndLike public immutable end;   // cage module
     address public immutable proxy; // Pause proxy
-    address public immutable pit;   // burner
     uint256 public immutable min;   // threshold
 
     mapping(address => uint256) public sum; // per-address balance
@@ -48,11 +48,10 @@ contract ESM {
     event Fire();
     event Join(address indexed usr, uint256 wad);
 
-    constructor(address gem_, address end_, address proxy_, address pit_, uint256 min_) public {
+    constructor(address gem_, address end_, address proxy_, uint256 min_) public {
         gem = GemLike(gem_);
         end = EndLike(end_);
         proxy = proxy_;
-        pit = pit_;
         min = min_;
     }
 
@@ -79,7 +78,11 @@ contract ESM {
         sum[msg.sender] = add(sum[msg.sender], wad);
         Sum = add(Sum, wad);
 
-        require(gem.transferFrom(msg.sender, pit, wad), "ESM/transfer-failed");
+        require(gem.transferFrom(msg.sender, address(this), wad), "ESM/transfer-failed");
         emit Join(msg.sender, wad);
+    }
+
+    function burn() external {
+        gem.burn(gem.balanceOf(address(this)));
     }
 }
