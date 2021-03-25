@@ -37,10 +37,10 @@ interface VatLike {
 }
 
 contract ESM {
-    GemLike public immutable gem;   // collateral
+    GemLike public immutable gem;   // collateral (MKR token)
     EndLike public immutable end;   // cage module
     address public immutable proxy; // Pause proxy
-    uint256 public immutable min;   // threshold
+    uint256 public immutable min;   // minimum activation threshold [wad]
 
     mapping(address => uint256) public sum; // per-address balance
     uint256 public Sum; // total balance
