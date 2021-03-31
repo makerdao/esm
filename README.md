@@ -13,8 +13,8 @@ can be `fire`d.
 
 It is meant to be used by an MKR minority to thwart two types of attack:
 
-* malicious governance
-* critical bug
+* malicious governance (using an ESM deployed version which denies the pause proxy on execution)
+* critical bug (using an ESM deployed version which doesn't deny the pause proxy on execution)
 
 In the former case, the pledgers will have no expectation of recovering the
 funds (as that would require a malicious majority to pass the required vote),
@@ -30,7 +30,7 @@ authorization to call `end.cage()`.
 ## Invariants
 
 * `fire` can be called by anyone
-* `fire` can be called only once
+* `fire` can be called only once (enforced by `end` module)
 * `fire` requires `sum` to be >= `min`
-* `join` can only be called before `fire`
-* gems are burnt immediately upon `join`ing
+* `join` can only be called before `fire` (enforced by `end` module)
+* gems are burnt using the extra function `burn` after `join`ing
