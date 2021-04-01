@@ -21,20 +21,26 @@ pragma solidity >=0.6.12;
 
 interface GemLike {
     function balanceOf(address) external view returns (uint256);
+    function burn(uint256) external;
     function transfer(address, uint256) external returns (bool);
     function transferFrom(address, address, uint256) external returns (bool);
 }
 
 interface EndLike {
+    function live() external view returns (uint256);
+    function vat()  external view returns (address);
     function cage() external;
 }
 
+interface VatLike {
+    function deny(address) external;
+}
+
 contract ESM {
-    GemLike public immutable gem; // collateral
-    EndLike public immutable end; // cage module
-    address public immutable pit; // burner
-    uint256 public immutable min; // threshold
-    uint256 public fired;
+    GemLike public immutable gem;   // collateral (MKR token)
+    EndLike public immutable end;   // cage module
+    address public immutable proxy; // Pause proxy
+    uint256 public immutable min;   // minimum activation threshold [wad]
 
     mapping(address => uint256) public sum; // per-address balance
     uint256 public Sum; // total balance
@@ -42,11 +48,15 @@ contract ESM {
     event Fire();
     event Join(address indexed usr, uint256 wad);
 
-    constructor(address gem_, address end_, address pit_, uint256 min_) public {
+    constructor(address gem_, address end_, address proxy_, uint256 min_) public {
         gem = GemLike(gem_);
         end = EndLike(end_);
-        pit = pit_;
+        proxy = proxy_;
         min = min_;
+    }
+
+    function revokesGovernanceAccess() external view returns (bool ret) {
+        ret = proxy != address(0);
     }
 
     // -- math --
@@ -56,22 +66,27 @@ contract ESM {
     }
 
     function fire() external {
-        require(fired == 0,  "esm/already-fired");
-        require(Sum >= min,  "esm/min-not-reached");
+        require(Sum >= min,  "ESM/min-not-reached");
 
         end.cage();
+        if (proxy != address(0)) {
+            VatLike(end.vat()).deny(proxy);
+        }
 
-        fired = 1;
         emit Fire();
     }
 
     function join(uint256 wad) external {
-        require(fired == 0, "esm/already-fired");
+        require(end.live() == 1, "ESM/system-already-shutdown");
 
         sum[msg.sender] = add(sum[msg.sender], wad);
         Sum = add(Sum, wad);
 
-        require(gem.transferFrom(msg.sender, pit, wad), "esm/transfer-failed");
+        require(gem.transferFrom(msg.sender, address(this), wad), "ESM/transfer-failed");
         emit Join(msg.sender, wad);
+    }
+
+    function burn() external {
+        gem.burn(gem.balanceOf(address(this)));
     }
 }
