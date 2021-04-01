@@ -13,7 +13,7 @@ can be `fire`d.
 
 It is meant to be used by an MKR minority to thwart two types of attack:
 
-* malicious governance (using an ESM deployed version which denies the pause proxy on execution)
+* malicious governance (using an ESM deployed version which denies the pause proxy on execution).  This contract is named `MCD_ESM_ATTACK` in the changelog.
 * critical bug (using an ESM deployed version which doesn't deny the pause proxy on execution)
 
 In the former case, the pledgers will have no expectation of recovering the
