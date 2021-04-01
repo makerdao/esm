@@ -77,7 +77,7 @@ contract TestUsr {
 
 contract Authority {
   function canCall(address, address, bytes4 sig)
-      public view returns (bool)
+      public pure returns (bool)
   {
     if (sig == bytes4(0x42966c68)) { // burn(uint256)
       return true;
@@ -114,6 +114,10 @@ contract ESMTest is DSTest {
         assertEq(address(esm.proxy()), pauseProxy);
         assertEq(esm.min(), 10);
         assertEq(end.live(), 1);
+        assertTrue(esm.revokesGovernanceAccess());
+
+        ESM esm2 = new ESM(address(gem), address(end), address(0), 10);
+        assertTrue(!esm2.revokesGovernanceAccess());
     }
 
     function test_Sum_is_internal_balance() public {

@@ -55,6 +55,10 @@ contract ESM {
         min = min_;
     }
 
+    function revokesGovernanceAccess() external view returns (bool ret) {
+        ret = proxy != address(0);
+    }
+
     // -- math --
     function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
         z = x + y;
