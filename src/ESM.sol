@@ -68,10 +68,10 @@ contract ESM {
     function fire() external {
         require(Sum >= min,  "ESM/min-not-reached");
 
-        end.cage();
         if (proxy != address(0)) {
             DenyLike(end.vat()).deny(proxy);
         }
+        end.cage();
 
         emit Fire();
     }
