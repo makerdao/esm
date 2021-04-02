@@ -70,7 +70,7 @@ contract EsmTestRpc is DSTest {
         );
     }
 
-    function test_rpc_governance_attack() public {
+    function test_rpc_governance_attack_fire() public {
         assertTrue(esm.revokesGovernanceAccess());
         mkr.mint(50000 * WAD);
         mkr.approve(address(esm));
@@ -79,6 +79,22 @@ contract EsmTestRpc is DSTest {
         assertEq(vat.live(), 1);
         esm.fire();
         assertEq(vat.wards(address(pauseProxy)), 0);
+        assertEq(vat.live(), 0);
+    }
+
+    function test_rpc_governance_attack_deny_fire() public {
+        assertTrue(esm.revokesGovernanceAccess());
+        mkr.mint(50000 * WAD);
+        mkr.approve(address(esm));
+        esm.join(50000 * WAD);
+        assertEq(vat.wards(address(pauseProxy)), 1);
+        assertEq(end.wards(address(pauseProxy)), 1);
+        esm.deny(address(vat));
+        esm.deny(address(end));
+        assertEq(vat.wards(address(pauseProxy)), 0);
+        assertEq(end.wards(address(pauseProxy)), 0);
+        assertEq(vat.live(), 1);
+        esm.fire();
         assertEq(vat.live(), 0);
     }
 }
