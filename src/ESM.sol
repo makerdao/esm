@@ -32,7 +32,7 @@ interface EndLike {
     function cage() external;
 }
 
-interface VatLike {
+interface DenyLike {
     function deny(address) external;
 }
 
@@ -70,10 +70,16 @@ contract ESM {
 
         end.cage();
         if (proxy != address(0)) {
-            VatLike(end.vat()).deny(proxy);
+            DenyLike(end.vat()).deny(proxy);
         }
 
         emit Fire();
+    }
+
+    function deny(address target) external {
+        require(Sum >= min,  "ESM/min-not-reached");
+
+        DenyLike(target).deny(proxy);
     }
 
     function join(uint256 wad) external {
