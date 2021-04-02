@@ -76,7 +76,9 @@ contract EsmTestRpc is DSTest {
         mkr.approve(address(esm));
         esm.join(50000 * WAD);
         assertEq(vat.wards(address(pauseProxy)), 1);
+        assertEq(vat.live(), 1);
         esm.fire();
         assertEq(vat.wards(address(pauseProxy)), 0);
+        assertEq(vat.live(), 0);
     }
 }
