@@ -58,12 +58,12 @@ contract EsmTestRpc is DSTest {
             address(pauseProxy),
             50000 * WAD
         );
-        hevm.store(
+        hevm.store( // vat.rely(esm);
             address(vat),
             keccak256(abi.encode(address(esm), uint256(0))),
             bytes32(uint256(1))
         );
-        hevm.store(
+        hevm.store( // end.rely(esm);
             address(end),
             keccak256(abi.encode(address(esm), uint256(0))),
             bytes32(uint256(1))
