@@ -35,21 +35,29 @@ contract EndMock {
     function cage() public {
         require(live == 1, "EndMock/system-already-shutdown");
         live = 0;
+        vat.cage();
     }
 }
 
 contract VatMock {
     // --- Auth ---
     mapping (address => uint) public wards;
-    function rely(address usr) external auth { wards[usr] = 1; }
-    function deny(address usr) external auth { wards[usr] = 0; }
+    function rely(address usr) external auth { require(live == 1, "VatMock/not-live"); wards[usr] = 1; }
+    function deny(address usr) external auth { require(live == 1, "VatMock/not-live"); wards[usr] = 0; }
     modifier auth {
         require(wards[msg.sender] == 1, "VatMock/not-authorized");
         _;
     }
 
+    uint256 public live;
+
     constructor() public {
         wards[msg.sender] = 1;
+        live = 1;
+    }
+
+    function cage() external auth {
+        live = 0;
     }
 }
 
@@ -122,6 +130,7 @@ contract ESMTest is DSTest {
         vat = new VatMock();
         vat.rely(pauseProxy);
         end = new EndMock(vat);
+        vat.rely(address(end));
         usr = new TestUsr(gem);
     }
 
