@@ -53,6 +53,21 @@ contract VatMock {
     }
 }
 
+contract AuthedContractMock {
+    // --- Auth ---
+    mapping (address => uint) public wards;
+    function rely(address usr) external auth { wards[usr] = 1; }
+    function deny(address usr) external auth { wards[usr] = 0; }
+    modifier auth {
+        require(wards[msg.sender] == 1, "AuthedContractMock/not-authorized");
+        _;
+    }
+
+    constructor() public {
+        wards[msg.sender] = 1;
+    }
+}
+
 contract TestUsr {
     DSToken gem;
 
@@ -68,6 +83,10 @@ contract TestUsr {
 
     function callFire(ESM esm) external {
         esm.fire();
+    }
+
+    function callDeny(ESM esm, address target) external {
+        esm.deny(target);
     }
 
     function callBurn(ESM esm) external {
@@ -144,6 +163,45 @@ contract ESMTest is DSTest {
         assertEq(vat.wards(pauseProxy), 1);
 
         assertEq(end.live(), 0);
+    }
+
+    function test_fire_then_deny() public {
+        esm = new ESM(address(gem), address(end), pauseProxy, 0);
+        AuthedContractMock someContract = new AuthedContractMock();
+        someContract.rely(pauseProxy);
+        someContract.rely(address(esm));
+        vat.rely(address(someContract));
+        vat.rely(address(esm));
+        assertEq(vat.wards(pauseProxy), 1);
+        assertEq(vat.wards(address(someContract)), 1);
+        assertEq(someContract.wards(pauseProxy), 1);
+        usr.callFire(esm);
+        assertEq(vat.wards(pauseProxy), 0);
+        assertEq(vat.wards(address(someContract)), 1);
+        assertEq(someContract.wards(pauseProxy), 1);
+        usr.callDeny(esm, address(someContract));
+        assertEq(vat.wards(pauseProxy), 0);
+        assertEq(vat.wards(address(someContract)), 1);
+        assertEq(someContract.wards(pauseProxy), 0);
+
+        assertEq(end.live(), 0);
+    }
+
+    function test_deny_then_fire() public {
+        esm = new ESM(address(gem), address(end), pauseProxy, 0);
+        vat.rely(address(esm));
+        assertEq(vat.wards(pauseProxy), 1);
+        usr.callDeny(esm, address(vat));
+        assertEq(vat.wards(pauseProxy), 0);
+        usr.callFire(esm);
+        assertEq(vat.wards(pauseProxy), 0);
+
+        assertEq(end.live(), 0);
+    }
+
+    function testFail_deny_insufficient_mkr() public {
+        esm = new ESM(address(gem), address(end), pauseProxy, 10);
+        usr.callDeny(esm, address(vat));
     }
 
     function testFail_fire_twice() public {
