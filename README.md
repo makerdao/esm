@@ -13,13 +13,15 @@ can be `fire`d.
 
 It is meant to be used by an MKR minority to thwart two types of attack:
 
-* malicious governance (using an ESM deployed version which denies the pause proxy on execution).  This contract is named `MCD_ESM_ATTACK` in the changelog.
-* critical bug (using an ESM deployed version which doesn't deny the pause proxy on execution).  This contract is named `MCD_ESM_BUG` in the changelog.
+* malicious governance (if an address to de-authorize is supplied in the constructor)
+* critical bug
 
 In the former case, the pledgers will have no expectation of recovering the
 funds (as that would require a malicious majority to pass the required vote),
 and their only option is to set up an alternative fork in which the majority's
-funds are slashed.
+funds are slashed. An ESM configured to protect against malicious governance can also
+be used to protect against most critical bugs, unless there is a bug in the shutdown
+process that requires governance intervention to work around.
 
 In the latter case, governance can choose to refund the ESM pledgers by minting new
 tokens.
