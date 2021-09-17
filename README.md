@@ -1,4 +1,5 @@
 # ESM
+![Build Status](https://github.com/makerdao/esm/actions/workflows/.github/workflows/tests.yaml/badge.svg?branch=master)
 
 Emergency Shutdown Module
 
