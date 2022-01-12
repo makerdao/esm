@@ -40,13 +40,14 @@ contract ESM {
     GemLike public immutable gem;   // collateral (MKR token)
     EndLike public immutable end;   // cage module
     address public immutable proxy; // Pause proxy
-    uint256 public immutable min;   // minimum activation threshold [wad]
 
     mapping(address => uint256) public sum; // per-address balance
     uint256 public Sum; // total balance
+    uint256 public min; // minimum activation threshold [wad]
 
     event Fire();
     event Join(address indexed usr, uint256 wad);
+    event File(bytes32 indexed what, uint256 data);
 
     constructor(address gem_, address end_, address proxy_, uint256 min_) public {
         gem = GemLike(gem_);
@@ -55,7 +56,7 @@ contract ESM {
         min = min_;
     }
 
-    function revokesGovernanceAccess() external view returns (bool ret) {
+    function revokedGovernanceAccess() external view returns (bool ret) {
         ret = proxy != address(0);
     }
 
@@ -63,6 +64,19 @@ contract ESM {
     function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
         z = x + y;
         require(z >= x);
+    }
+
+    // -- admin --
+    function file(bytes32 what, uint256 data) external {
+        require(msg.sender == proxy, "ESM/not-authorized");
+        if (what == "min") {
+            require(data > 0, "ESM/min-required");
+            min = data;
+        } else {
+            revert("ESM/file-unrecognized-param");
+        }
+
+        emit File(what, data);
     }
 
     function fire() external {

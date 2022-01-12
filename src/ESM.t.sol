@@ -142,10 +142,10 @@ contract ESMTest is DSTest {
         assertEq(address(esm.proxy()), pauseProxy);
         assertEq(esm.min(), 10);
         assertEq(end.live(), 1);
-        assertTrue(esm.revokesGovernanceAccess());
+        assertTrue(esm.revokedGovernanceAccess());
 
         ESM esm2 = new ESM(address(gem), address(end), address(0), 10);
-        assertTrue(!esm2.revokesGovernanceAccess());
+        assertTrue(!esm2.revokedGovernanceAccess());
     }
 
     function test_Sum_is_internal_balance() public {
@@ -295,5 +295,35 @@ contract ESMTest is DSTest {
         assertEq(gem.balanceOf(address(usr)), 0);
 
         usr.callJoin(esm, 10);
+    }
+
+    function test_file_new_min() public {
+        esm = new ESM(address(gem), address(end), address(this), 10);
+        assertEq(esm.min(), 10);
+
+        esm.file("min", 20);
+
+        assertEq(esm.min(), 20);
+    }
+
+    function testFail_file_revoked_gov() public {
+        esm = new ESM(address(gem), address(end), address(0), 10);
+        assertEq(esm.min(), 10);
+
+        esm.file("min", 20);
+    }
+
+    function testFail_file_not_gov() public {
+        esm = new ESM(address(gem), address(end), pauseProxy, 10);
+        assertEq(esm.min(), 10);
+
+        esm.file("min", 20);
+    }
+    
+    function testFail_file_no_min() public {
+        esm = new ESM(address(gem), address(end), address(this), 10);
+        assertEq(esm.min(), 10);
+
+        esm.file("min", 0);
     }
 }
