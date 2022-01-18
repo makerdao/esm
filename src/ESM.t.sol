@@ -309,6 +309,25 @@ contract ESMTest is DSTest {
         assertEq(esm.min(), 20_000 * WAD);
     }
 
+    function test_file_new_min_then_fire() public {
+        gem.mint(address(usr), 10_000 * WAD);
+        esm = new ESM(address(gem), address(end), address(this), 20_000 * WAD);
+        vat.rely(address(esm));
+
+        assertEq(esm.min(), 20_000 * WAD);
+        assertEq(vat.wards(address(this)), 1);
+
+        usr.callJoin(esm, 10_000 * WAD);
+        esm.file("min", 10_000 * WAD);
+
+        assertEq(esm.min(), 10_000 * WAD);
+
+        usr.callFire(esm);
+
+        assertEq(vat.wards(address(this)), 0);
+        assertEq(end.live(), 0);
+    }
+
     function testFail_file_revoked_gov() public {
         esm = new ESM(address(gem), address(end), address(0), 10_000 * WAD);
         assertEq(esm.min(), 10_000 * WAD);
@@ -328,5 +347,12 @@ contract ESMTest is DSTest {
         assertEq(esm.min(), 10_000 * WAD);
 
         esm.file("min", 0);
+    }
+
+    function testFail_file_wrong_what() public {
+        esm = new ESM(address(gem), address(end), address(this), 10_000 * WAD);
+        assertEq(esm.min(), 10_000 * WAD);
+
+        esm.file("wrong", 20_000 * WAD);
     }
 }
