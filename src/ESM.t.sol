@@ -115,6 +115,9 @@ contract Authority {
 }
 
 contract ESMTest is DSTest {
+    
+    uint256 constant WAD = 10 ** 18;
+
     ESM     esm;
     DSToken gem;
     address pauseProxy = address(123);
@@ -135,22 +138,22 @@ contract ESMTest is DSTest {
     }
 
     function test_constructor() public {
-        esm = new ESM(address(gem), address(end), pauseProxy, 10);
+        esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
 
         assertEq(address(esm.gem()), address(gem));
         assertEq(address(esm.end()), address(end));
         assertEq(address(esm.proxy()), pauseProxy);
-        assertEq(esm.min(), 10);
+        assertEq(esm.min(), 10_000 * WAD);
         assertEq(end.live(), 1);
         assertTrue(esm.revokedGovernanceAccess());
 
-        ESM esm2 = new ESM(address(gem), address(end), address(0), 10);
+        ESM esm2 = new ESM(address(gem), address(end), address(0), 10_000 * WAD);
         assertTrue(!esm2.revokedGovernanceAccess());
     }
 
     function test_Sum_is_internal_balance() public {
-        esm = new ESM(address(gem), address(end), address(0), 10);
-        gem.mint(address(esm), 10);
+        esm = new ESM(address(gem), address(end), address(0), 10_000 * WAD);
+        gem.mint(address(esm), 10_000 * WAD);
 
         assertEq(esm.Sum(), 0);
     }
@@ -209,7 +212,7 @@ contract ESMTest is DSTest {
     }
 
     function testFail_deny_insufficient_mkr() public {
-        esm = new ESM(address(gem), address(end), pauseProxy, 10);
+        esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
         vat.rely(address(esm));
         usr.callDeny(esm, address(vat));
     }
@@ -224,13 +227,13 @@ contract ESMTest is DSTest {
     function testFail_join_after_fired() public {
         esm = new ESM(address(gem), address(end), address(0), 0);
         usr.callFire(esm);
-        gem.mint(address(usr), 10);
+        gem.mint(address(usr), 10_000 * WAD);
 
-        usr.callJoin(esm, 10);
+        usr.callJoin(esm, 10_000 * WAD);
     }
 
     function testFail_fire_min_not_met() public {
-        esm = new ESM(address(gem), address(end), address(0), 10);
+        esm = new ESM(address(gem), address(end), address(0), 10_000 * WAD);
         assertTrue(esm.Sum() <= esm.min());
 
         usr.callFire(esm);
@@ -238,91 +241,91 @@ contract ESMTest is DSTest {
 
     // -- user actions --
     function test_join_burn() public {
-        gem.mint(address(usr), 10);
-        esm = new ESM(address(gem), address(end), address(0), 10);
+        gem.mint(address(usr), 10_000 * WAD);
+        esm = new ESM(address(gem), address(end), address(0), 10_000 * WAD);
 
-        usr.callJoin(esm, 6);
-        assertEq(esm.Sum(), 6);
-        assertEq(gem.balanceOf(address(esm)), 6);
-        assertEq(gem.balanceOf(address(usr)), 4);
+        usr.callJoin(esm, 6_000 * WAD);
+        assertEq(esm.Sum(), 6_000 * WAD);
+        assertEq(gem.balanceOf(address(esm)), 6_000 * WAD);
+        assertEq(gem.balanceOf(address(usr)), 4_000 * WAD);
 
         esm.burn();
-        assertEq(esm.Sum(), 6);
+        assertEq(esm.Sum(), 6_000 * WAD);
         assertEq(gem.balanceOf(address(esm)), 0);
-        assertEq(gem.balanceOf(address(usr)), 4);
+        assertEq(gem.balanceOf(address(usr)), 4_000 * WAD);
 
-        usr.callJoin(esm, 4);
-        assertEq(esm.Sum(), 10);
-        assertEq(gem.balanceOf(address(esm)), 4);
+        usr.callJoin(esm, 4_000 * WAD);
+        assertEq(esm.Sum(), 10_000 * WAD);
+        assertEq(gem.balanceOf(address(esm)), 4_000 * WAD);
         assertEq(gem.balanceOf(address(usr)), 0);
 
         esm.burn();
-        assertEq(esm.Sum(), 10);
+        assertEq(esm.Sum(), 10_000 * WAD);
         assertEq(gem.balanceOf(address(esm)), 0);
         assertEq(gem.balanceOf(address(usr)), 0);
     }
 
     function test_burn_before_fire() public {
-        gem.mint(address(usr), 10);
-        esm = new ESM(address(gem), address(end), address(0), 10);
-        usr.callJoin(esm, 10);
-        assertEq(gem.balanceOf(address(esm)), 10);
+        gem.mint(address(usr), 10_000 * WAD);
+        esm = new ESM(address(gem), address(end), address(0), 10_000 * WAD);
+        usr.callJoin(esm, 10_000 * WAD);
+        assertEq(gem.balanceOf(address(esm)), 10_000 * WAD);
         usr.callBurn(esm);
         assertEq(gem.balanceOf(address(esm)), 0);
         usr.callFire(esm);
     }
 
     function test_burn_after_fire() public {
-        gem.mint(address(usr), 10);
-        esm = new ESM(address(gem), address(end), address(0), 10);
-        usr.callJoin(esm, 10);
-        assertEq(gem.balanceOf(address(esm)), 10);
+        gem.mint(address(usr), 10_000 * WAD);
+        esm = new ESM(address(gem), address(end), address(0), 10_000 * WAD);
+        usr.callJoin(esm, 10_000 * WAD);
+        assertEq(gem.balanceOf(address(esm)), 10_000 * WAD);
         usr.callFire(esm);
         usr.callBurn(esm);
         assertEq(gem.balanceOf(address(esm)), 0);
     }
 
     function test_join_over_min() public {
-        gem.mint(address(usr), 20);
-        esm = new ESM(address(gem), address(end), address(0), 10);
+        gem.mint(address(usr), 20_000 * WAD);
+        esm = new ESM(address(gem), address(end), address(0), 10_000 * WAD);
 
-        usr.callJoin(esm, 10);
-        usr.callJoin(esm, 10);
+        usr.callJoin(esm, 10_000 * WAD);
+        usr.callJoin(esm, 10_000 * WAD);
     }
 
     function testFail_join_insufficient_balance() public {
-        esm = new ESM(address(gem), address(end), address(0), 10);
+        esm = new ESM(address(gem), address(end), address(0), 10_000 * WAD);
         assertEq(gem.balanceOf(address(usr)), 0);
 
-        usr.callJoin(esm, 10);
+        usr.callJoin(esm, 10_000 * WAD);
     }
 
     function test_file_new_min() public {
-        esm = new ESM(address(gem), address(end), address(this), 10);
-        assertEq(esm.min(), 10);
+        esm = new ESM(address(gem), address(end), address(this), 10_000 * WAD);
+        assertEq(esm.min(), 10_000 * WAD);
 
-        esm.file("min", 20);
+        esm.file("min", 20_000 * WAD);
 
-        assertEq(esm.min(), 20);
+        assertEq(esm.min(), 20_000 * WAD);
     }
 
     function testFail_file_revoked_gov() public {
-        esm = new ESM(address(gem), address(end), address(0), 10);
-        assertEq(esm.min(), 10);
+        esm = new ESM(address(gem), address(end), address(0), 10_000 * WAD);
+        assertEq(esm.min(), 10_000 * WAD);
 
-        esm.file("min", 20);
+        esm.file("min", 20_000 * WAD);
     }
 
     function testFail_file_not_gov() public {
-        esm = new ESM(address(gem), address(end), pauseProxy, 10);
-        assertEq(esm.min(), 10);
+        esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
+        assertEq(esm.min(), 10_000 * WAD);
 
-        esm.file("min", 20);
+        esm.file("min", 20_000 * WAD);
     }
     
     function testFail_file_no_min() public {
-        esm = new ESM(address(gem), address(end), address(this), 10);
-        assertEq(esm.min(), 10);
+        esm = new ESM(address(gem), address(end), address(this), 10_000 * WAD);
+        assertEq(esm.min(), 10_000 * WAD);
 
         esm.file("min", 0);
     }
