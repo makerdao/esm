@@ -39,7 +39,6 @@ interface DenyLike {
 
 contract ESM {
     GemLike public immutable gem;   // collateral (MKR token)
-    EndLike public immutable end;   // cage module
     address public immutable proxy; // Pause proxy
 
     mapping(address => uint256) public wards; // auth
@@ -47,10 +46,12 @@ contract ESM {
     
     uint256 public Sum; // total balance
     uint256 public min; // minimum activation threshold [wad]
+    EndLike public end; // cage module
 
     event Fire();
     event Join(address indexed usr, uint256 wad);
     event File(bytes32 indexed what, uint256 data);
+    event File(bytes32 indexed what, address data);
     event Rely(address indexed usr);
     event Deny(address indexed usr);
 
@@ -95,6 +96,16 @@ contract ESM {
         if (what == "min") {
             require(data > 0, "ESM/min-required");
             min = data;
+        } else {
+            revert("ESM/file-unrecognized-param");
+        }
+
+        emit File(what, data);
+    }
+    
+    function file(bytes32 what, address data) external auth {
+        if (what == "end") {
+            end = EndLike(data);
         } else {
             revert("ESM/file-unrecognized-param");
         }

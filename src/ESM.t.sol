@@ -105,6 +105,10 @@ contract TestUsr {
     function callFile(ESM esm, bytes32 what, uint256 data) external {
         esm.file(what, data);
     }
+    
+    function callFile(ESM esm, bytes32 what, address data) external {
+        esm.file(what, data);
+    }
 }
 
 contract Authority {
@@ -333,7 +337,7 @@ contract ESMTest is DSTest {
         assertEq(end.live(), 0);
     }
 
-    function testFail_file_after_denied() public {
+    function testFail_file_min_after_denied() public {
         esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
         esm.deny(address(this));
         assertEq(esm.min(), 10_000 * WAD);
@@ -341,7 +345,7 @@ contract ESMTest is DSTest {
         esm.file("min", 20_000 * WAD);
     }
 
-    function test_file_relied_address() public {
+    function test_file_min_relied_address() public {
         // This is the pattern we will follow for the deployer:
         // 1. deploy the contract
         // 2. rely on the governance pause proxy (usr in this case)
@@ -372,10 +376,45 @@ contract ESMTest is DSTest {
         esm.file("min", 0);
     }
 
-    function testFail_file_wrong_what() public {
+    function testFail_file_uint256_wrong_what() public {
         esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
         assertEq(esm.min(), 10_000 * WAD);
 
         esm.file("wrong", 20_000 * WAD);
+    }
+    
+    function test_file_new_end() public {
+        esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
+        assertEq(address(esm.end()), address(end));
+
+        esm.file("end", address(456));
+
+        assertEq(address(esm.end()), address(456));
+    }
+
+    function test_file_end_relied_address() public {
+        esm = new ESM(address(gem), address(end), address(usr), 10_000 * WAD);
+        esm.rely(address(usr));
+        esm.deny(address(this));
+
+        assertEq(address(esm.end()), address(end));
+
+        usr.callFile(esm, "end", address(456));
+
+        assertEq(address(esm.end()), address(456));
+    }
+
+    function testFail_file_end_not_relied() public {
+        esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
+        assertEq(address(esm.end()), address(end));
+
+        usr.callFile(esm, "end", address(456));
+    }
+
+    function testFail_file_address_wrong_what() public {
+        esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
+        assertEq(address(esm.end()), address(end));
+
+        esm.file("wrong", address(456));
     }
 }
