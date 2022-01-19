@@ -38,6 +38,9 @@ interface DenyLike {
 }
 
 contract ESM {
+    
+    uint256 constant WAD = 10 ** 18;
+
     GemLike public immutable gem;   // collateral (MKR token)
     address public immutable proxy; // Pause proxy
 
@@ -94,7 +97,7 @@ contract ESM {
     // -- admin --
     function file(bytes32 what, uint256 data) external auth {
         if (what == "min") {
-            require(data > 0, "ESM/min-required");
+            require(data > WAD, "ESM/min-too-small");
             min = data;
         } else {
             revert("ESM/file-unrecognized-param");

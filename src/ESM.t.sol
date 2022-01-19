@@ -369,11 +369,11 @@ contract ESMTest is DSTest {
         usr.callFile(esm, "min", 20_000 * WAD);
     }
     
-    function testFail_file_no_min() public {
+    function testFail_file_min_too_small() public {
         esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
         assertEq(esm.min(), 10_000 * WAD);
 
-        esm.file("min", 0);
+        esm.file("min", WAD);
     }
 
     function testFail_file_uint256_wrong_what() public {
