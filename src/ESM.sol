@@ -38,13 +38,13 @@ interface DenyLike {
 }
 
 contract ESM {
-    mapping (address => uint256) public wards; // auth
-
     GemLike public immutable gem;   // collateral (MKR token)
     EndLike public immutable end;   // cage module
     address public immutable proxy; // Pause proxy
 
+    mapping(address => uint256) public wards; // auth
     mapping(address => uint256) public sum; // per-address balance
+    
     uint256 public Sum; // total balance
     uint256 public min; // minimum activation threshold [wad]
 
