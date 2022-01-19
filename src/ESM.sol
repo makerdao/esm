@@ -38,6 +38,8 @@ interface DenyLike {
 }
 
 contract ESM {
+    mapping (address => uint256) public wards; // auth
+
     GemLike public immutable gem;   // collateral (MKR token)
     EndLike public immutable end;   // cage module
     address public immutable proxy; // Pause proxy
@@ -73,7 +75,6 @@ contract ESM {
     }
 
     // --- Auth ---
-    mapping (address => uint256) public wards;
     function rely(address usr) external auth {
         wards[usr] = 1;
 
