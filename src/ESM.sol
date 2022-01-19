@@ -56,7 +56,7 @@ contract ESM {
         min = min_;
     }
 
-    function revokedGovernanceAccess() external view returns (bool ret) {
+    function revokesGovernanceAccess() external view returns (bool ret) {
         ret = proxy != address(0);
     }
 
