@@ -146,10 +146,10 @@ contract ESMTest is DSTest {
         assertEq(address(esm.proxy()), pauseProxy);
         assertEq(esm.min(), 10_000 * WAD);
         assertEq(end.live(), 1);
-        assertTrue(esm.revokedGovernanceAccess());
+        assertTrue(esm.revokesGovernanceAccess());
 
         ESM esm2 = new ESM(address(gem), address(end), address(0), 10_000 * WAD);
-        assertTrue(!esm2.revokedGovernanceAccess());
+        assertTrue(!esm2.revokesGovernanceAccess());
     }
 
     function test_Sum_is_internal_balance() public {
