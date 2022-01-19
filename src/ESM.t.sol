@@ -94,12 +94,16 @@ contract TestUsr {
         esm.fire();
     }
 
-    function callDeny(ESM esm, address target) external {
-        esm.deny(target);
+    function callDenyProxy(ESM esm, address target) external {
+        esm.denyProxy(target);
     }
 
     function callBurn(ESM esm) external {
         esm.burn();
+    }
+
+    function callFile(ESM esm, bytes32 what, uint256 data) external {
+        esm.file(what, data);
     }
 }
 
@@ -192,7 +196,7 @@ contract ESMTest is DSTest {
         assertEq(vat.wards(pauseProxy), 0);
         assertEq(vat.wards(address(someContract)), 1);
         assertEq(someContract.wards(pauseProxy), 1);
-        usr.callDeny(esm, address(someContract));
+        usr.callDenyProxy(esm, address(someContract));
         assertEq(vat.wards(pauseProxy), 0);
         assertEq(vat.wards(address(someContract)), 1);
         assertEq(someContract.wards(pauseProxy), 0);
@@ -204,7 +208,7 @@ contract ESMTest is DSTest {
         esm = new ESM(address(gem), address(end), pauseProxy, 0);
         vat.rely(address(esm));
         assertEq(vat.wards(pauseProxy), 1);
-        usr.callDeny(esm, address(vat));
+        usr.callDenyProxy(esm, address(vat));
         assertEq(vat.wards(pauseProxy), 0);
         usr.callFire(esm);
         assertEq(vat.wards(pauseProxy), 0);
@@ -215,7 +219,7 @@ contract ESMTest is DSTest {
     function testFail_deny_insufficient_mkr() public {
         esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
         vat.rely(address(esm));
-        usr.callDeny(esm, address(vat));
+        usr.callDenyProxy(esm, address(vat));
     }
 
     function testFail_fire_twice() public {
@@ -331,6 +335,7 @@ contract ESMTest is DSTest {
 
     function testFail_file_revoked_gov() public {
         esm = new ESM(address(gem), address(end), address(0), 10_000 * WAD);
+        esm.deny(address(this));
         assertEq(esm.min(), 10_000 * WAD);
 
         esm.file("min", 20_000 * WAD);
@@ -340,7 +345,7 @@ contract ESMTest is DSTest {
         esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
         assertEq(esm.min(), 10_000 * WAD);
 
-        esm.file("min", 20_000 * WAD);
+        usr.callFile(esm, "min", 20_000 * WAD);
     }
     
     function testFail_file_no_min() public {

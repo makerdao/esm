@@ -49,12 +49,17 @@ contract ESM {
     event Fire();
     event Join(address indexed usr, uint256 wad);
     event File(bytes32 indexed what, uint256 data);
+    event Rely(address indexed usr);
+    event Deny(address indexed usr);
 
     constructor(address gem_, address end_, address proxy_, uint256 min_) public {
         gem = GemLike(gem_);
         end = EndLike(end_);
         proxy = proxy_;
         min = min_;
+
+        wards[msg.sender] = 1;
+        emit Rely(msg.sender);
     }
 
     function revokesGovernanceAccess() external view returns (bool ret) {
@@ -67,9 +72,25 @@ contract ESM {
         require(z >= x);
     }
 
+    // --- Auth ---
+    mapping (address => uint) public wards;
+    function rely(address usr) external auth {
+        wards[usr] = 1;
+
+        emit Rely(usr);
+    }
+    function deny(address usr) external auth {
+        wards[usr] = 0;
+
+        emit Deny(usr);
+    }
+    modifier auth {
+        require(wards[msg.sender] == 1, "ESM/not-authorized");
+        _;
+    }
+
     // -- admin --
-    function file(bytes32 what, uint256 data) external {
-        require(msg.sender == proxy, "ESM/not-authorized");
+    function file(bytes32 what, uint256 data) external auth {
         if (what == "min") {
             require(data > 0, "ESM/min-required");
             min = data;
@@ -91,7 +112,7 @@ contract ESM {
         emit Fire();
     }
 
-    function deny(address target) external {
+    function denyProxy(address target) external {
         require(Sum >= min,  "ESM/min-not-reached");
 
         DenyLike(target).deny(proxy);
