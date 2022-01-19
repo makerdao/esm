@@ -333,7 +333,7 @@ contract ESMTest is DSTest {
         assertEq(end.live(), 0);
     }
 
-    function testFail_file_revoked_gov() public {
+    function testFail_file_after_denied() public {
         esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
         esm.deny(address(this));
         assertEq(esm.min(), 10_000 * WAD);
@@ -341,7 +341,24 @@ contract ESMTest is DSTest {
         esm.file("min", 20_000 * WAD);
     }
 
-    function testFail_file_not_gov() public {
+    function test_file_relied_address() public {
+        // This is the pattern we will follow for the deployer:
+        // 1. deploy the contract
+        // 2. rely on the governance pause proxy
+        // 3. deny the deployer to revoke access
+        // Now the pause proxy should be able to file new mins
+        esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
+        esm.rely(address(usr));
+        esm.deny(address(this));
+
+        assertEq(esm.min(), 10_000 * WAD);
+
+        usr.callFile(esm, "min", 20_000 * WAD);
+
+        assertEq(esm.min(), 20_000 * WAD);
+    }
+
+    function testFail_file_not_relied() public {
         esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
         assertEq(esm.min(), 10_000 * WAD);
 
