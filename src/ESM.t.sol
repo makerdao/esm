@@ -344,10 +344,10 @@ contract ESMTest is DSTest {
     function test_file_relied_address() public {
         // This is the pattern we will follow for the deployer:
         // 1. deploy the contract
-        // 2. rely on the governance pause proxy
+        // 2. rely on the governance pause proxy (usr in this case)
         // 3. deny the deployer to revoke access
-        // Now the pause proxy should be able to file new mins
-        esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
+        // Now the pause proxy (usr contract below) should be able to file new mins
+        esm = new ESM(address(gem), address(end), address(usr), 10_000 * WAD);
         esm.rely(address(usr));
         esm.deny(address(this));
 
