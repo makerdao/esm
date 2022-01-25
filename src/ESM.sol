@@ -2,7 +2,7 @@
 
 /// ESM.sol
 
-// Copyright (C) 2019-2021 Maker Ecosystem Growth Holdings, INC.
+// Copyright (C) 2019-2022 Dai Foundation
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -37,22 +37,34 @@ interface DenyLike {
 }
 
 contract ESM {
-    GemLike public immutable gem;   // collateral (MKR token)
-    EndLike public immutable end;   // cage module
-    address public immutable proxy; // Pause proxy
-    uint256 public immutable min;   // minimum activation threshold [wad]
+    
+    uint256 constant WAD = 10 ** 18;
 
+    GemLike public immutable gem;   // collateral (MKR token)
+    address public immutable proxy; // Pause proxy
+
+    mapping(address => uint256) public wards; // auth
     mapping(address => uint256) public sum; // per-address balance
+    
     uint256 public Sum; // total balance
+    uint256 public min; // minimum activation threshold [wad]
+    EndLike public end; // cage module
 
     event Fire();
     event Join(address indexed usr, uint256 wad);
+    event File(bytes32 indexed what, uint256 data);
+    event File(bytes32 indexed what, address data);
+    event Rely(address indexed usr);
+    event Deny(address indexed usr);
 
     constructor(address gem_, address end_, address proxy_, uint256 min_) public {
         gem = GemLike(gem_);
         end = EndLike(end_);
         proxy = proxy_;
         min = min_;
+
+        wards[msg.sender] = 1;
+        emit Rely(msg.sender);
     }
 
     function revokesGovernanceAccess() external view returns (bool ret) {
@@ -63,6 +75,44 @@ contract ESM {
     function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
         z = x + y;
         require(z >= x);
+    }
+
+    // --- Auth ---
+    function rely(address usr) external auth {
+        wards[usr] = 1;
+
+        emit Rely(usr);
+    }
+    function deny(address usr) external auth {
+        wards[usr] = 0;
+
+        emit Deny(usr);
+    }
+    modifier auth {
+        require(wards[msg.sender] == 1, "ESM/not-authorized");
+        _;
+    }
+
+    // -- admin --
+    function file(bytes32 what, uint256 data) external auth {
+        if (what == "min") {
+            require(data > WAD, "ESM/min-too-small");
+            min = data;
+        } else {
+            revert("ESM/file-unrecognized-param");
+        }
+
+        emit File(what, data);
+    }
+    
+    function file(bytes32 what, address data) external auth {
+        if (what == "end") {
+            end = EndLike(data);
+        } else {
+            revert("ESM/file-unrecognized-param");
+        }
+
+        emit File(what, data);
     }
 
     function fire() external {
@@ -76,7 +126,7 @@ contract ESM {
         emit Fire();
     }
 
-    function deny(address target) external {
+    function denyProxy(address target) external {
         require(Sum >= min,  "ESM/min-not-reached");
 
         DenyLike(target).deny(proxy);
