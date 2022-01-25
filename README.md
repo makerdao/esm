@@ -27,7 +27,7 @@ process that requires governance intervention to work around.
 In the latter case, governance can choose to refund the ESM pledgers by minting new
 tokens.
 
-If governance wants to disarm the ESM, it can do so by removing all of it's authorizations in the system or by calling `stop()`.
+If governance wants to disarm the ESM, it can do so by removing all of it's authorizations in the system or by calling `cage()`.
 
 ## Invariants
 

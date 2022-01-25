@@ -422,18 +422,18 @@ contract ESMTest is DSTest {
 
         esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
         assertEq(address(esm.end()), address(end));
-        assertEq(esm.stopped(), 0);
+        assertEq(esm.live(), 1);
 
-        esm.stop();
+        esm.cage();
 
-        assertEq(esm.stopped(), 1);
+        assertEq(esm.live(), 0);
     }
 
     function testFailStoppedFire() public {
 
         esm = new ESM(address(gem), address(end), address(0), 0);
         assertEq(vat.wards(pauseProxy), 1);
-        esm.stop();
+        esm.cage();
         usr.callFire(esm); // fail here
     }
 
@@ -445,7 +445,7 @@ contract ESMTest is DSTest {
         someContract.rely(address(esm));
         vat.rely(address(someContract));
 
-        esm.stop();
+        esm.cage();
 
         usr.callDenyProxy(esm, address(someContract)); // Fail here
     }
@@ -454,7 +454,7 @@ contract ESMTest is DSTest {
         gem.mint(address(usr), 10_000 * WAD);
         esm = new ESM(address(gem), address(end), address(0), 10_000 * WAD);
 
-        esm.stop();
+        esm.cage();
 
         usr.callJoin(esm, 6_000 * WAD); // Fail here
     }
