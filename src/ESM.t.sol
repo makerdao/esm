@@ -105,7 +105,7 @@ contract TestUsr {
     function callFile(ESM esm, bytes32 what, uint256 data) external {
         esm.file(what, data);
     }
-    
+
     function callFile(ESM esm, bytes32 what, address data) external {
         esm.file(what, data);
     }
@@ -124,7 +124,7 @@ contract Authority {
 }
 
 contract ESMTest is DSTest {
-    
+
     uint256 constant WAD = 10 ** 18;
 
     ESM     esm;
@@ -368,7 +368,7 @@ contract ESMTest is DSTest {
 
         usr.callFile(esm, "min", 20_000 * WAD);
     }
-    
+
     function testFail_file_min_too_small() public {
         esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
         assertEq(esm.min(), 10_000 * WAD);
@@ -382,7 +382,7 @@ contract ESMTest is DSTest {
 
         esm.file("wrong", 20_000 * WAD);
     }
-    
+
     function test_file_new_end() public {
         esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
         assertEq(address(esm.end()), address(end));
@@ -416,5 +416,46 @@ contract ESMTest is DSTest {
         assertEq(address(esm.end()), address(end));
 
         esm.file("wrong", address(456));
+    }
+
+    function testStopped() public {
+
+        esm = new ESM(address(gem), address(end), pauseProxy, 10_000 * WAD);
+        assertEq(address(esm.end()), address(end));
+        assertEq(esm.stopped(), 0);
+
+        esm.stop();
+
+        assertEq(esm.stopped(), 1);
+    }
+
+    function testFailStoppedFire() public {
+
+        esm = new ESM(address(gem), address(end), address(0), 0);
+        assertEq(vat.wards(pauseProxy), 1);
+        esm.stop();
+        usr.callFire(esm); // fail here
+    }
+
+    function testFailStoppedDenyProxy() public {
+
+        esm = new ESM(address(gem), address(end), pauseProxy, 0);
+        AuthedContractMock someContract = new AuthedContractMock();
+        someContract.rely(pauseProxy);
+        someContract.rely(address(esm));
+        vat.rely(address(someContract));
+
+        esm.stop();
+
+        usr.callDenyProxy(esm, address(someContract)); // Fail here
+    }
+
+    function testFailStoppedJoin() public {
+        gem.mint(address(usr), 10_000 * WAD);
+        esm = new ESM(address(gem), address(end), address(0), 10_000 * WAD);
+
+        esm.stop();
+
+        usr.callJoin(esm, 6_000 * WAD); // Fail here
     }
 }
