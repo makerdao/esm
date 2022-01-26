@@ -44,7 +44,7 @@ contract ESM {
     address public immutable proxy; // Pause proxy
 
     mapping(address => uint256) public wards; // auth
-    mapping(address => uint256) public sum; // per-address balance
+    mapping(address => uint256) public sum;   // per-address balance
 
     uint256 public Sum;  // total balance
     uint256 public min;  // minimum activation threshold [wad]
