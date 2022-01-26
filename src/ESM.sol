@@ -37,7 +37,7 @@ interface DenyLike {
 }
 
 contract ESM {
-
+    
     uint256 constant WAD = 10 ** 18;
 
     GemLike public immutable gem;   // collateral (MKR token)
@@ -45,11 +45,10 @@ contract ESM {
 
     mapping(address => uint256) public wards; // auth
     mapping(address => uint256) public sum; // per-address balance
-
+    
     uint256 public Sum; // total balance
     uint256 public min; // minimum activation threshold [wad]
     EndLike public end; // cage module
-    uint256 public stopped;
 
     event Fire();
     event Join(address indexed usr, uint256 wad);
@@ -67,11 +66,6 @@ contract ESM {
 
         wards[msg.sender] = 1;
         emit Rely(msg.sender);
-    }
-
-    modifier live() {
-        require(stopped == 0, "ESM/permanently-disabled");
-        _;
     }
 
     function revokesGovernanceAccess() external view returns (bool ret) {
@@ -111,7 +105,7 @@ contract ESM {
 
         emit File(what, data);
     }
-
+    
     function file(bytes32 what, address data) external auth {
         if (what == "end") {
             end = EndLike(data);
@@ -122,11 +116,7 @@ contract ESM {
         emit File(what, data);
     }
 
-    function stop() external auth {
-        stopped = 1;
-    }
-
-    function fire() external live {
+    function fire() external {
         require(Sum >= min,  "ESM/min-not-reached");
 
         if (proxy != address(0)) {
@@ -137,14 +127,14 @@ contract ESM {
         emit Fire();
     }
 
-    function denyProxy(address target) external live {
+    function denyProxy(address target) external {
         require(Sum >= min,  "ESM/min-not-reached");
 
         DenyLike(target).deny(proxy);
         emit DenyProxy(target, proxy);
     }
 
-    function join(uint256 wad) external live {
+    function join(uint256 wad) external {
         require(end.live() == 1, "ESM/system-already-shutdown");
 
         sum[msg.sender] = add(sum[msg.sender], wad);
