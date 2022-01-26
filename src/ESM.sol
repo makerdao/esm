@@ -57,6 +57,7 @@ contract ESM {
     event File(bytes32 indexed what, address data);
     event Rely(address indexed usr);
     event Deny(address indexed usr);
+    event DenyProxy(address indexed base, address indexed pause);
 
     constructor(address gem_, address end_, address proxy_, uint256 min_) public {
         gem = GemLike(gem_);
@@ -138,6 +139,7 @@ contract ESM {
         require(Sum >= min,  "ESM/min-not-reached");
 
         DenyLike(target).deny(proxy);
+        emit DenyProxy(target, proxy);
     }
 
     function join(uint256 wad) external {
