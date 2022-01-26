@@ -46,10 +46,10 @@ contract ESM {
     mapping(address => uint256) public wards; // auth
     mapping(address => uint256) public sum; // per-address balance
 
-    uint256 public Sum; // total balance
-    uint256 public min; // minimum activation threshold [wad]
-    EndLike public end; // cage module
-    uint256 public live;
+    uint256 public Sum;  // total balance
+    uint256 public min;  // minimum activation threshold [wad]
+    EndLike public end;  // cage module
+    uint256 public live; // active flag
 
     event Fire();
     event Join(address indexed usr, uint256 wad);
