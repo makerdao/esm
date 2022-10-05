@@ -82,78 +82,78 @@ contract ESM {
 
     // --- Auth ---
     function rely(address usr) external auth {
-        wards[usr] = 1;
+        wards[usr] = 1;0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
 
-        emit Rely(usr);
+        emit Rely(usr);0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
     }
     function deny(address usr) external auth {
-        wards[usr] = 0;
+        wards[usr] = 0;0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
 
         emit Deny(usr);
     }
     modifier auth {
-        require(wards[msg.sender] == 1, "ESM/not-authorized");
+        require(wards[msg.sender] == 1, "ESM/not-authorized");0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
         _;
     }
 
     // -- admin --
     function file(bytes32 what, uint256 data) external auth {
         if (what == "min") {
-            require(data > WAD, "ESM/min-too-small");
-            min = data;
+            require(data > WAD, "ESM/min-too-small");0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
+            min = data;0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
         } else {
-            revert("ESM/file-unrecognized-param");
+            revert("ESM/file-unrecognized-param");0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
         }
 
-        emit File(what, data);
+        emit File(what, data);0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
     }
 
     function file(bytes32 what, address data) external auth {
         if (what == "end") {
-            end = EndLike(data);
+            end = EndLike(data);0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
         } else {
-            revert("ESM/file-unrecognized-param");
+            revert("ESM/file-unrecognized-param");0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
         }
 
-        emit File(what, data);
+        emit File(what, data);0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
     }
 
     function cage() external auth {
-        live = 0;
+        live = 0;0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
     }
 
     function fire() external {
-        require(live == 1, "ESM/permanently-disabled");
-        require(Sum >= min,  "ESM/min-not-reached");
+        require(live == 1, "ESM/permanently-disabled");0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
+        require(Sum >= min,  "ESM/min-not-reached");0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
 
         if (proxy != address(0)) {
-            DenyLike(end.vat()).deny(proxy);
+            DenyLike(end.vat()).deny(proxy);0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
         }
-        end.cage();
+        end.cage();0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
 
-        emit Fire();
+        emit Fire();0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
     }
 
-    function denyProxy(address target) external {
-        require(live == 1, "ESM/permanently-disabled");
-        require(Sum >= min,  "ESM/min-not-reached");
+    function denyProxy(address target) external {0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
+        require(live == 1, "ESM/permanently-disabled");0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
+        require(Sum >= min,  "ESM/min-not-reached");0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
 
-        DenyLike(target).deny(proxy);
-        emit DenyProxy(target, proxy);
+        DenyLike(target).deny(proxy);0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
+        emit DenyProxy(target, proxy);0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
     }
 
     function join(uint256 wad) external {
-        require(live == 1, "ESM/permanently-disabled");
-        require(end.live() == 1, "ESM/system-already-shutdown");
+        require(live == 1, "ESM/permanently-disabled");0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
+        require(end.live() == 1, "ESM/system-already-shutdown");0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
 
         sum[msg.sender] = add(sum[msg.sender], wad);
-        Sum = add(Sum, wad);
+        Sum = add(Sum, wad);0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
 
         require(gem.transferFrom(msg.sender, address(this), wad), "ESM/transfer-failed");
-        emit Join(msg.sender, wad);
+        emit Join(msg.sender, wad);0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
     }
 
     function burn() external {
-        gem.burn(gem.balanceOf(address(this)));
+        gem.burn(gem.balanceOf(address(this)));0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
     }
 }
